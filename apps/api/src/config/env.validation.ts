@@ -35,6 +35,10 @@ export function validate(config: Record<string, unknown>): Record<string, unknow
     if (!hasOrigins) {
       errors.push('ALLOWED_ORIGINS or NEXT_PUBLIC_APP_URL must be set in production');
     }
+
+    if (!config.STRIPE_SECRET_KEY) errors.push('STRIPE_SECRET_KEY is required in production');
+    if (!config.STRIPE_WEBHOOK_SECRET) errors.push('STRIPE_WEBHOOK_SECRET is required in production');
+    if (!config.RESEND_API_KEY) errors.push('RESEND_API_KEY is required in production');
   }
 
   // --- Abort in production, warn in dev ---

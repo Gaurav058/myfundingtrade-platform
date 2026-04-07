@@ -1,0 +1,16 @@
+export {
+  registrationEmail,
+  emailVerificationEmail,
+  orderConfirmationEmail,
+  kycSubmittedEmail,
+  kycApprovedEmail,
+  kycRejectedEmail,
+  payoutRequestedEmail,
+  payoutApprovedEmail,
+  payoutRejectedEmail,
+  ticketCreatedEmail,
+  ticketRepliedEmail,
+  affiliateSignupEmail,
+  affiliatePayoutUpdateEmail,
+  newsletterSubscriptionEmail,
+} from './email-templates';

@@ -1,0 +1,78 @@
+/* ═══════════════════════════════════════════════════════════
+ * MyFundingTrade — Design Token Reference
+ * ═══════════════════════════════════════════════════════════
+ *
+ * This file documents the unified design token system shared
+ * across all three frontend apps (web, portal, admin).
+ *
+ * Tokens are applied via @theme blocks in each app's globals.css.
+ * This file is NOT imported — it serves as the source of truth.
+ *
+ * ═══════════════════════════════════════════════════════════ */
+
+/* ── Color Palette ─────────────────────────────────────────
+ *
+ * Backgrounds (depth system — layered from dark to light):
+ *   bg           #06080f   Page background
+ *   bg-raised    #0a0e1a   Raised sections, alternating bands
+ *   bg-surface   #0c1020   Cards, panels, modals
+ *   bg-surface-hover #111631  Interactive surface hover
+ *   bg-elevated  #161c30   Overlays, dropdowns, popovers
+ *
+ * Borders:
+ *   border       #1a1f36   Default border
+ *   border-subtle #12162a  Lighter dividers
+ *   border-accent rgba(34,197,94,0.2)  Brand-tinted borders
+ *
+ * Text:
+ *   text-heading #f8fafc   Headlines, h1–h3      (slate-50)
+ *   text         #e2e8f0   Body text              (slate-200)
+ *   text-muted   #64748b   Secondary, labels      (slate-500)
+ *   text-subtle  #475569   Timestamps, captions   (slate-600)
+ *
+ * Brand:
+ *   brand        #22c55e   Primary actions, links  (green-500)
+ *   brand-hover  #16a34a   Hover state            (green-600)
+ *   brand-muted  rgba(34,197,94,0.1)  Badge/tag fills
+ *
+ * Semantic:
+ *   danger       #ef4444   Errors, destructive
+ *   danger-muted rgba(239,68,68,0.1)
+ *   warning      #f59e0b   Warnings, pending
+ *   warning-muted rgba(245,158,11,0.1)
+ *   info         #3b82f6   Informational
+ *   info-muted   rgba(59,130,246,0.1)
+ *   gold         #eab308   Premium accents
+ *
+ * ── Typography ────────────────────────────────────────────
+ *
+ *   font-sans    Inter Variable → system stack
+ *   font-mono    JetBrains Mono → system stack
+ *
+ * ── Spacing Scale (Tailwind default) ──────────────────────
+ *
+ *   Component padding:  p-4 (16px) base, p-5 (20px) cards, p-6 (24px) large
+ *   Section padding:    py-20 (80px) → py-28 (112px) on md+
+ *   Card gap:           gap-4 (16px) → gap-6 (24px) for grids
+ *   Stack gap:          space-y-6 (24px) dashboard sections
+ *
+ * ── Radius ────────────────────────────────────────────────
+ *
+ *   Buttons, inputs:    rounded-lg  (8px)
+ *   Cards, panels:      rounded-xl  (12px)
+ *   Large hero cards:   rounded-2xl (16px)
+ *   Badges, pills:      rounded-full
+ *
+ * ── Shadows ───────────────────────────────────────────────
+ *
+ *   .glow-card         Subtle card elevation
+ *   .glow-card:hover   Lift effect with brand tint
+ *   .glow-brand        Brand glow halo
+ *
+ * ── Motion ────────────────────────────────────────────────
+ *
+ *   .animate-shimmer   Loading skeleton shimmer
+ *   .animate-fade-in   Staggered entrance (0.4s ease-out)
+ *   transition-colors  150ms for interactive elements
+ *
+ * ═══════════════════════════════════════════════════════════ */

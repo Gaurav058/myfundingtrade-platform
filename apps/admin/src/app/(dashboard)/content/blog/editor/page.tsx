@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBlogPost, getBlogCategories, createBlogPost, updateBlogPost } from "@/lib/api-client";
 import type { BlogPost, BlogCategory } from "@myfundingtrade/types";
@@ -10,6 +10,14 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function BlogEditorPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <BlogEditorContent />
+    </Suspense>
+  );
+}
+
+function BlogEditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");

@@ -4,17 +4,20 @@ import { cn } from '../lib/cn';
 import type { ButtonHTMLAttributes } from 'react';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded-lg font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500',
+        primary:
+          'bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand-hover)] shadow-sm',
         secondary:
-          'bg-slate-800 text-slate-100 hover:bg-slate-700 focus-visible:ring-slate-500',
+          'bg-[var(--color-bg-surface)] text-[var(--color-text)] border border-[var(--color-border)] hover:bg-[var(--color-bg-surface-hover)]',
         outline:
-          'border border-slate-700 bg-transparent text-slate-100 hover:bg-slate-800 focus-visible:ring-slate-500',
-        ghost: 'text-slate-300 hover:bg-slate-800 hover:text-slate-100',
-        danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
+          'border border-[var(--color-border)] bg-transparent text-[var(--color-text)] hover:bg-[var(--color-bg-surface)]',
+        ghost:
+          'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text)]',
+        danger:
+          'bg-[var(--color-danger)] text-white hover:bg-red-700 shadow-sm',
       },
       size: {
         sm: 'h-9 px-3 text-sm',

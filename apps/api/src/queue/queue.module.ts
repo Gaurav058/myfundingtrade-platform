@@ -1,14 +1,18 @@
 import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
+import {
+  EmailProcessor,
+  NotificationProcessor,
+  EvaluationProcessor,
+  PayoutProcessor,
+  AuditProcessor,
+} from './processors';
+import { EMAIL_PROVIDER } from '../notifications/email';
+import { ResendEmailProvider } from '../notifications/email';
+import { QUEUE_NAMES } from './constants';
 
-export const QUEUE_NAMES = {
-  EMAIL: 'email',
-  NOTIFICATIONS: 'notifications',
-  EVALUATION: 'evaluation',
-  PAYOUTS: 'payouts',
-  AUDIT: 'audit',
-} as const;
+export { QUEUE_NAMES };
 
 @Global()
 @Module({
@@ -30,6 +34,14 @@ export const QUEUE_NAMES = {
       { name: QUEUE_NAMES.AUDIT },
     ),
   ],
-  exports: [BullModule],
+  providers: [
+    { provide: EMAIL_PROVIDER, useClass: ResendEmailProvider },
+    EmailProcessor,
+    NotificationProcessor,
+    EvaluationProcessor,
+    PayoutProcessor,
+    AuditProcessor,
+  ],
+  exports: [BullModule, EMAIL_PROVIDER],
 })
 export class QueueModule {}

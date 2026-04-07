@@ -9,7 +9,6 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { Plus } from "lucide-react";
-import { mockVariants } from "@/lib/mock-data";
 
 export default function PlansPage() {
   const router = useRouter();
@@ -40,7 +39,7 @@ export default function PlansPage() {
       <span className="font-mono text-xs text-[var(--color-text-muted)]">{r.slug}</span>
     )},
     { key: "variants", header: "Variants", render: (r: ChallengePlan) => (
-      <span className="text-sm">{mockVariants.filter((v) => v.planId === r.id).length}</span>
+      <span className="text-sm">{(r as any).variants?.length ?? 0}</span>
     )},
     { key: "isActive", header: "Status", render: (r: ChallengePlan) => (
       <StatusBadge status={r.isActive ? "ACTIVE" : "INACTIVE"} />

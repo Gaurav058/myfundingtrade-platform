@@ -2,14 +2,19 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto, ReplyTicketDto, UpdateTicketStatusDto } from './dto/ticket.dto';
 import { PaginationDto } from '../common/dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 @Injectable()
 export class TicketsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async create(userId: string, dto: CreateTicketDto) {
     const ticketNumber = `TK-${Date.now().toString(36).toUpperCase()}`;
-    return this.prisma.supportTicket.create({
+    const ticket = await this.prisma.supportTicket.create({
       data: {
         userId,
         ticketNumber,
@@ -27,6 +32,17 @@ export class TicketsService {
       },
       include: { messages: true },
     });
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, profile: { select: { firstName: true } } } });
+    this.eventEmitter.emit(NotificationEvents.TICKET_CREATED, {
+      userId,
+      email: user?.email,
+      firstName: user?.profile?.firstName,
+      ticketId: ticket.ticketNumber,
+      subject: dto.subject,
+    });
+
+    return ticket;
   }
 
   async findAllForUser(userId: string, query: PaginationDto) {
@@ -79,6 +95,21 @@ export class TicketsService {
         },
       }),
     ]);
+
+    // Notify ticket owner when an agent replies (not internal notes, not self-replies)
+    if (isInternal && ticket.userId !== senderId) {
+      const sender = await this.prisma.user.findUnique({ where: { id: senderId }, select: { profile: { select: { firstName: true } } } });
+      const owner = await this.prisma.user.findUnique({ where: { id: ticket.userId }, select: { email: true, profile: { select: { firstName: true } } } });
+      this.eventEmitter.emit(NotificationEvents.TICKET_REPLIED, {
+        userId: ticket.userId,
+        email: owner?.email,
+        firstName: owner?.profile?.firstName,
+        ticketId: ticket.ticketNumber,
+        subject: ticket.subject,
+        replierName: sender?.profile?.firstName || 'Support Agent',
+      });
+    }
+
     return message;
   }
 

@@ -7,7 +7,7 @@ import { Headphones, MessageCircle } from "lucide-react";
 
 export function SupportCtaSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#0a0e1a]">
+    <section className="py-20 md:py-28 bg-[var(--color-bg-raised)]">
       <div className="section-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

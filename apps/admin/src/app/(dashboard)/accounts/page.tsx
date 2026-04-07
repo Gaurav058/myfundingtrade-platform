@@ -41,10 +41,10 @@ export default function AccountsPage() {
     { key: "userId", header: "User", render: (r: TraderAccount) => (
       <span className="font-mono text-xs text-[var(--color-text-muted)]">{r.userId}</span>
     )},
-    { key: "startingBalance", header: "Starting", render: (r: TraderAccount) => `$${r.startingBalance.toLocaleString()}` },
+    { key: "startingBalance", header: "Starting", render: (r: TraderAccount) => `$${Number(r.startingBalance).toLocaleString()}` },
     { key: "currentBalance", header: "Current", render: (r: TraderAccount) => (
-      <span className={r.currentBalance >= r.startingBalance ? "text-[var(--color-brand)]" : "text-[var(--color-danger)]"}>
-        ${r.currentBalance.toLocaleString()}
+      <span className={Number(r.currentBalance) >= Number(r.startingBalance) ? "text-[var(--color-brand)]" : "text-[var(--color-danger)]"}>
+        ${Number(r.currentBalance).toLocaleString()}
       </span>
     )},
     { key: "currentPhase", header: "Phase", render: (r: TraderAccount) => <StatusBadge status={r.currentPhase} /> },

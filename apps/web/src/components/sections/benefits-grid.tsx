@@ -27,7 +27,7 @@ const iconMap: Record<string, React.ElementType> = {
 
 export function BenefitsGridSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#0a0e1a]">
+    <section className="py-20 md:py-28 bg-[var(--color-bg-raised)]">
       <div className="section-container">
         <SectionHeader
           label="Why MyFundingTrade"
@@ -45,7 +45,7 @@ export function BenefitsGridSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: i * 0.06, duration: 0.35 }}
-                className="group rounded-2xl border border-[#1a1f36] bg-[#0c1020] p-6 transition-colors duration-300 hover:border-green-500/20"
+                className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6 transition-colors duration-300 hover:border-[var(--color-border-accent)]"
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10 transition-colors duration-300 group-hover:bg-green-500/20">
                   <Icon className="h-5 w-5 text-green-400" />

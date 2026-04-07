@@ -1,0 +1,45 @@
+# Staging overrides — use with: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mft_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-staging_password}
+      POSTGRES_DB: ${POSTGRES_DB:-myfundingtrade_staging}
+    ports: []
+
+  redis:
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports: []
+
+  api:
+    env_file:
+      - .env.staging
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mft_staging}:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/${POSTGRES_DB:-myfundingtrade_staging}?schema=public
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "127.0.0.1:4000:4000"
+
+  web:
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.staging.myfundingtrade.com
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  portal:
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.staging.myfundingtrade.com
+    ports:
+      - "127.0.0.1:3001:3000"
+
+  admin:
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.staging.myfundingtrade.com
+    ports:
+      - "127.0.0.1:3002:3000"
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro

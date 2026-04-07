@@ -66,4 +66,17 @@ export class AdminService {
 
     return { recentOrders, recentUsers, recentTickets };
   }
+
+  async getAuditLogs(page = 1, pageSize = 20) {
+    const skip = (page - 1) * pageSize;
+    const [items, total] = await Promise.all([
+      this.prisma.adminActionLog.findMany({
+        take: pageSize,
+        skip,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.adminActionLog.count(),
+    ]);
+    return { items, total, page, pageSize };
+  }
 }

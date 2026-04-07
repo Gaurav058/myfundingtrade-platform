@@ -1,10 +1,15 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationDto } from '../common/dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 @Injectable()
 export class NewsletterService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async subscribe(email: string) {
     const existing = await this.prisma.newsletterSubscriber.findUnique({
@@ -17,9 +22,13 @@ export class NewsletterService {
         data: { isConfirmed: true, confirmedAt: new Date(), unsubscribedAt: null },
       });
     }
-    return this.prisma.newsletterSubscriber.create({
+    const subscriber = await this.prisma.newsletterSubscriber.create({
       data: { email, isConfirmed: true, confirmedAt: new Date() },
     });
+
+    this.eventEmitter.emit(NotificationEvents.NEWSLETTER_SUBSCRIPTION, { email });
+
+    return subscriber;
   }
 
   async unsubscribe(email: string) {

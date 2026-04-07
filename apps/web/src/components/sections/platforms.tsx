@@ -8,7 +8,7 @@ import { Monitor } from "lucide-react";
 
 export function PlatformsSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#0a0e1a]">
+    <section className="py-20 md:py-28 bg-[var(--color-bg-raised)]">
       <div className="section-container">
         <SectionHeader
           label="Trading Platforms"
@@ -24,7 +24,7 @@ export function PlatformsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
-              className="glow-card flex flex-col items-center rounded-2xl border border-[#1a1f36] bg-[#0c1020] p-8 text-center"
+              className="glow-card flex flex-col items-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-8 text-center"
             >
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10">
                 <Monitor className="h-7 w-7 text-green-400" />

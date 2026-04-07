@@ -6,7 +6,7 @@ import { Button } from "@myfundingtrade/ui";
 
 export function NewsletterSection() {
   return (
-    <section className="py-20 md:py-28 border-y border-[#1a1f36] bg-[#0a0e1a]">
+    <section className="py-20 md:py-28 border-y border-[var(--color-border)] bg-[var(--color-bg-raised)]">
       <div className="section-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -30,7 +30,7 @@ export function NewsletterSection() {
               required
               placeholder="you@example.com"
               aria-label="Email address"
-              className="flex-1 rounded-lg border border-[#1a1f36] bg-[#0c1020] px-4 py-3 text-sm text-slate-200 placeholder:text-slate-600 focus:border-green-500/50 focus:outline-none focus:ring-1 focus:ring-green-500/30"
+              className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 text-sm text-slate-200 placeholder:text-slate-600 focus:border-green-500/50 focus:outline-none focus:ring-1 focus:ring-green-500/30"
             />
             <Button variant="primary" type="submit" className="shrink-0">
               <Send className="mr-2 h-4 w-4" />

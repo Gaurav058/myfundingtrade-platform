@@ -10,6 +10,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
+    rawBody: true, // required for Stripe webhook signature verification
   });
   const configService = app.get(ConfigService);
   const isProduction = configService.get('NODE_ENV') === 'production';

@@ -23,6 +23,7 @@ services:
     image: redis:7-alpine
     container_name: mft-redis
     restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
@@ -52,6 +53,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ─── Web (Public Site) ──────────────────────────────────
   web:
@@ -62,10 +74,16 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     environment:
-      NEXT_PUBLIC_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ─── Portal (Trader Dashboard) ─────────────────────────
   portal:
@@ -76,10 +94,16 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3000"
-    env_file:
-      - .env
     environment:
-      NEXT_PUBLIC_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ─── Admin Panel ────────────────────────────────────────
   admin:
@@ -90,10 +114,16 @@ services:
     restart: unless-stopped
     ports:
       - "3002:3000"
-    env_file:
-      - .env
     environment:
-      NEXT_PUBLIC_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ─── Nginx Reverse Proxy ───────────────────────────────
   nginx:
@@ -102,13 +132,20 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - api
       - web
       - portal
       - admin
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:

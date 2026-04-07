@@ -2,7 +2,7 @@ import { AlertTriangle } from "lucide-react";
 
 export function DisclaimerSection() {
   return (
-    <section className="py-12 bg-[#06080f] border-t border-[#1a1f36]">
+    <section className="py-12 bg-[var(--color-bg)] border-t border-[var(--color-border)]">
       <div className="section-container">
         <div className="flex gap-4 rounded-xl border border-yellow-500/10 bg-yellow-500/5 p-5">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-500/60" />

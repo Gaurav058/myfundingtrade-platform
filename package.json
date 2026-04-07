@@ -24,6 +24,11 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:build": "docker compose build",
+    "docker:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
+    "docker:staging": "docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d",
+    "deploy:prod": "./scripts/deploy-prod.sh",
+    "deploy:staging": "./scripts/deploy-staging.sh",
+    "backup:db": "./scripts/backup-db.sh",
     "prepare": "echo 'Monorepo ready'"
   },
   "devDependencies": {

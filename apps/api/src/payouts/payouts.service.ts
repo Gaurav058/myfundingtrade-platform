@@ -6,10 +6,15 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RequestPayoutDto, ReviewPayoutDto } from './dto/payout.dto';
 import { PaginationDto } from '../common/dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 @Injectable()
 export class PayoutsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async requestPayout(userId: string, dto: RequestPayoutDto) {
     const account = await this.prisma.traderAccount.findFirst({
@@ -28,7 +33,7 @@ export class PayoutsService {
     }
 
     const requestNumber = `PR-${Date.now().toString(36).toUpperCase()}`;
-    return this.prisma.payoutRequest.create({
+    const payoutRequest = await this.prisma.payoutRequest.create({
       data: {
         userId,
         traderAccountId: account.id,
@@ -40,6 +45,18 @@ export class PayoutsService {
         status: 'DRAFT',
       },
     });
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, profile: { select: { firstName: true } } } });
+    this.eventEmitter.emit(NotificationEvents.PAYOUT_REQUESTED, {
+      userId,
+      email: user?.email,
+      firstName: user?.profile?.firstName,
+      payoutId: payoutRequest.requestNumber,
+      amount: dto.requestedAmount * 100,
+      currency: 'USD',
+    });
+
+    return payoutRequest;
   }
 
   async findAllForUser(userId: string, query: PaginationDto) {
@@ -83,7 +100,7 @@ export class PayoutsService {
       throw new BadRequestException('Payout is not pending review');
     }
 
-    return this.prisma.payoutRequest.update({
+    const updated = await this.prisma.payoutRequest.update({
       where: { id },
       data: {
         status: dto.decision === 'APPROVED' ? 'APPROVED' : 'REJECTED',
@@ -93,5 +110,16 @@ export class PayoutsService {
         processedAt: dto.decision === 'APPROVED' ? new Date() : undefined,
       },
     });
+
+    const user = await this.prisma.user.findUnique({ where: { id: payout.userId }, select: { email: true, profile: { select: { firstName: true } } } });
+    const basePayload = { userId: payout.userId, email: user?.email ?? '', firstName: user?.profile?.firstName, payoutId: payout.requestNumber };
+
+    if (dto.decision === 'APPROVED') {
+      this.eventEmitter.emit(NotificationEvents.PAYOUT_APPROVED, { ...basePayload, amount: Number(payout.amount) * 100, currency: 'USD' });
+    } else {
+      this.eventEmitter.emit(NotificationEvents.PAYOUT_REJECTED, { ...basePayload, reason: dto.rejectionReason || 'Not approved' });
+    }
+
+    return updated;
   }
 }

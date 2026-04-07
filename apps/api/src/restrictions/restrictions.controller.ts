@@ -51,4 +51,34 @@ export class RestrictionsController {
   remove(@Param('code') code: string) {
     return this.service.remove(code.toUpperCase());
   }
+
+  // ── Platform Restrictions ─────────────────────
+
+  @Public()
+  @Get('platform')
+  getPlatformRestrictions() {
+    return this.service.getPlatformRestrictions();
+  }
+
+  @Public()
+  @Get('platform/:key/check')
+  checkPlatformRestriction(@Param('key') key: string) {
+    return this.service.checkPlatformRestriction(key);
+  }
+
+  @ApiBearerAuth()
+  @Post('admin/platform')
+  @Roles('SUPER_ADMIN')
+  upsertPlatformRestriction(
+    @Body() body: { key: string; isEnabled?: boolean; description?: string; metadata?: any },
+  ) {
+    return this.service.upsertPlatformRestriction(body.key, body);
+  }
+
+  @ApiBearerAuth()
+  @Delete('admin/platform/:key')
+  @Roles('SUPER_ADMIN')
+  removePlatformRestriction(@Param('key') key: string) {
+    return this.service.removePlatformRestriction(key);
+  }
 }

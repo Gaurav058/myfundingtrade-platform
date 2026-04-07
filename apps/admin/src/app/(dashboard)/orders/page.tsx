@@ -38,10 +38,10 @@ export default function OrdersPage() {
     { key: "userId", header: "User", render: (r: Order) => (
       <span className="font-mono text-xs text-[var(--color-text-muted)]">{r.userId}</span>
     )},
-    { key: "subtotal", header: "Subtotal", render: (r: Order) => `$${r.subtotal.toFixed(2)}` },
-    { key: "discountAmount", header: "Discount", render: (r: Order) => r.discountAmount > 0 ? `-$${r.discountAmount.toFixed(2)}` : "—" },
+    { key: "subtotal", header: "Subtotal", render: (r: Order) => `$${Number(r.subtotal).toFixed(2)}` },
+    { key: "discountAmount", header: "Discount", render: (r: Order) => Number(r.discountAmount) > 0 ? `-$${Number(r.discountAmount).toFixed(2)}` : "—" },
     { key: "totalAmount", header: "Total", render: (r: Order) => (
-      <span className="font-semibold">${r.totalAmount.toFixed(2)}</span>
+      <span className="font-semibold">${Number(r.totalAmount).toFixed(2)}</span>
     )},
     { key: "status", header: "Status", render: (r: Order) => <StatusBadge status={r.status} /> },
     { key: "createdAt", header: "Date", render: (r: Order) => (

@@ -21,10 +21,10 @@ const variantColors: Record<string, string> = {
 export function StatCard({ label, value, icon, trend, variant = "default" }: StatCardProps) {
   const accent = variantColors[variant];
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-5">
+    <div className="group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-5 transition-all duration-200 hover:border-[var(--color-border-accent)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">{label}</p>
-        {icon && <div className="text-[var(--color-text-muted)]">{icon}</div>}
+        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">{label}</p>
+        {icon && <div className="text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-brand)]">{icon}</div>}
       </div>
       <p className="mt-2 text-2xl font-bold text-[var(--color-text-heading)]">{value}</p>
       {trend && (

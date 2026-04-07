@@ -2,12 +2,13 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Param,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
-import { CurrentUser } from '../common/decorators';
+import { CurrentUser, Roles } from '../common/decorators';
 import { PaginationDto } from '../common/dto';
 
 @ApiTags('Notifications')
@@ -29,5 +30,32 @@ export class NotificationsController {
   @Patch('read-all')
   markAllAsRead(@CurrentUser('id') userId: string) {
     return this.service.markAllAsRead(userId);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.service.deleteNotification(id, userId);
+  }
+
+  // ── Admin endpoints ────────────────────────────────────────────────────
+
+  @Get('admin/list')
+  @Roles('SUPER_ADMIN', 'SUPPORT_ADMIN')
+  @ApiQuery({ name: 'userId', required: false })
+  @ApiQuery({ name: 'type', required: false })
+  @ApiQuery({ name: 'status', required: false })
+  adminFindAll(
+    @Query() query: PaginationDto,
+    @Query('userId') userId?: string,
+    @Query('type') type?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.service.adminFindAll({ ...query, userId, type, status });
+  }
+
+  @Get('admin/stats')
+  @Roles('SUPER_ADMIN', 'SUPPORT_ADMIN')
+  adminStats() {
+    return this.service.adminGetStats();
   }
 }

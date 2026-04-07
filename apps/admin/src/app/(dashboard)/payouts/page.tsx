@@ -10,7 +10,8 @@ import { FilterBar } from "@/components/ui/filter-bar";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { AuditTrail } from "@/components/ui/audit-trail";
-import { mockAuditLogs } from "@/lib/mock-data";
+import { getAuditLogs } from "@/lib/api-client";
+import type { AdminActionLog } from "@myfundingtrade/types";
 import { CheckCircle, XCircle } from "lucide-react";
 
 export default function PayoutsPage() {
@@ -21,13 +22,18 @@ export default function PayoutsPage() {
   const [selected, setSelected] = useState<PayoutRequest | null>(null);
   const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<AdminActionLog[]>([]);
 
   const load = () => {
     setLoading(true);
     setError(false);
-    getPayoutRequests(page).then((res) => {
+    Promise.all([getPayoutRequests(page), getAuditLogs()]).then(([res, logsRes]) => {
       if (res.success && res.data) setData(res.data);
       else setError(true);
+      if (logsRes.success && logsRes.data) {
+        const items = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data as any).items ?? [];
+        setAuditLogs(items.filter((l: AdminActionLog) => l.resource === "payout"));
+      }
       setLoading(false);
     });
   };
@@ -38,7 +44,7 @@ export default function PayoutsPage() {
   if (loading) return <LoadingState />;
   if (error || !data) return <ErrorState onRetry={load} />;
 
-  const payoutLogs = mockAuditLogs.filter((l) => l.resource === "payout");
+  const payoutLogs = auditLogs;
 
   const columns = [
     { key: "requestNumber", header: "Request #", render: (r: PayoutRequest) => (
@@ -48,10 +54,10 @@ export default function PayoutsPage() {
       <span className="font-mono text-xs text-[var(--color-text-muted)]">{r.userId}</span>
     )},
     { key: "amount", header: "Amount", render: (r: PayoutRequest) => (
-      <span className="font-semibold">${r.amount.toLocaleString()}</span>
+      <span className="font-semibold">${Number(r.amount).toLocaleString()}</span>
     )},
-    { key: "traderShare", header: "Trader Share", render: (r: PayoutRequest) => `$${r.traderShare.toLocaleString()}` },
-    { key: "companyShare", header: "Company Share", render: (r: PayoutRequest) => `$${r.companyShare.toLocaleString()}` },
+    { key: "traderShare", header: "Trader Share", render: (r: PayoutRequest) => `$${Number(r.traderShare).toLocaleString()}` },
+    { key: "companyShare", header: "Company Share", render: (r: PayoutRequest) => `$${Number(r.companyShare).toLocaleString()}` },
     { key: "status", header: "Status", render: (r: PayoutRequest) => <StatusBadge status={r.status} /> },
     { key: "actions", header: "Actions", render: (r: PayoutRequest) => (
       <div className="flex gap-1">
@@ -92,7 +98,7 @@ export default function PayoutsPage() {
         open={approveOpen}
         onOpenChange={setApproveOpen}
         title="Approve Payout"
-        description={`Approve payout ${selected?.requestNumber} for $${selected?.traderShare.toLocaleString()} to trader?`}
+        description={`Approve payout ${selected?.requestNumber} for $${Number(selected?.traderShare ?? 0).toLocaleString()} to trader?`}
         confirmLabel="Approve Payout"
         confirmVariant="success"
         onConfirm={() => setSelected(null)}

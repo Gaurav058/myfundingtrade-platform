@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getLegalDocuments, createLegalDocument, updateLegalDocument } from "@/lib/api-client";
 import type { LegalDocument, PaginatedResponse } from "@myfundingtrade/types";
@@ -20,6 +20,14 @@ const LEGAL_TYPES = [
 ];
 
 export default function LegalEditorPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <LegalEditorContent />
+    </Suspense>
+  );
+}
+
+function LegalEditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");

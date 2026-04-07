@@ -10,6 +10,8 @@ import {
   ReviewCommissionPayoutDto,
 } from './dto';
 import * as crypto from 'crypto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 const ATTRIBUTION_WINDOW_DAYS = 30;
 const MAX_CLICKS_PER_IP_PER_DAY = 10;
@@ -18,7 +20,10 @@ const PAYOUT_COOLDOWN_DAYS = 30;
 
 @Injectable()
 export class AffiliatesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   // ═══════════════════════════════════════════════════════════════════════
   //  CLICK TRACKING
@@ -68,6 +73,14 @@ export class AffiliatesService {
           commissionRate: DEFAULT_COMMISSION_RATE,
           status: 'PENDING',
         },
+      });
+
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, profile: { select: { firstName: true } } } });
+      this.eventEmitter.emit(NotificationEvents.AFFILIATE_SIGNUP, {
+        userId,
+        email: user?.email,
+        firstName: user?.profile?.firstName,
+        affiliateCode: affiliate.affiliateCode,
       });
     }
     return affiliate;
@@ -455,11 +468,34 @@ export class AffiliatesService {
           data: { status: 'PAID' },
         }),
       ]);
+
+      const affUser = await this.prisma.user.findUnique({ where: { id: payout.affiliate.userId }, select: { email: true, profile: { select: { firstName: true } } } });
+      this.eventEmitter.emit(NotificationEvents.AFFILIATE_PAYOUT_UPDATE, {
+        userId: payout.affiliate.userId,
+        email: affUser?.email,
+        firstName: affUser?.profile?.firstName,
+        payoutId: payout.id,
+        amount: payoutAmount * 100,
+        currency: payout.currency,
+        status: 'Completed',
+      });
+
       return this.prisma.commissionPayout.findUnique({ where: { id } });
     }
 
     if (dto.decision === 'REJECTED') {
       data.note = dto.note || 'Rejected by admin';
+
+      const affUser = await this.prisma.user.findUnique({ where: { id: payout.affiliate.userId }, select: { email: true, profile: { select: { firstName: true } } } });
+      this.eventEmitter.emit(NotificationEvents.AFFILIATE_PAYOUT_UPDATE, {
+        userId: payout.affiliate.userId,
+        email: affUser?.email,
+        firstName: affUser?.profile?.firstName,
+        payoutId: payout.id,
+        amount: Number(payout.amount) * 100,
+        currency: payout.currency,
+        status: 'Rejected',
+      });
     }
 
     return this.prisma.commissionPayout.update({ where: { id }, data });

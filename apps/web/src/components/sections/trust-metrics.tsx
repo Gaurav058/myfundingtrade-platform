@@ -27,7 +27,7 @@ export function TrustMetricsSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
-                className="glow-card rounded-2xl border border-[#1a1f36] bg-[#0c1020] p-6 text-center"
+                className="glow-card rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6 text-center"
               >
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
                   <Icon className="h-6 w-6 text-green-400" />

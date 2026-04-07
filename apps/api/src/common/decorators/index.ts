@@ -13,3 +13,5 @@ export const CurrentUser = createParamDecorator(
     return data ? user?.[data] : user;
   },
 );
+
+export { GeoRestricted } from './geo-restricted.decorator';

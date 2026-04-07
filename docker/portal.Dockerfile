@@ -1,6 +1,7 @@
 # ─── Stage 1: Install ─────────────────────────────────────
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+RUN apk add --no-cache libc6-compat curl && \
+    corepack enable && corepack prepare pnpm@9.15.4 --activate
 WORKDIR /app
 
 # ─── Stage 2: Build ──────────────────────────────────────
@@ -20,14 +21,24 @@ RUN pnpm --filter @myfundingtrade/portal build
 
 # ─── Stage 3: Production ─────────────────────────────────
 FROM node:20-alpine AS production
+RUN apk add --no-cache libc6-compat curl
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
-COPY --from=build /app/apps/portal/.next/standalone ./
-COPY --from=build /app/apps/portal/.next/static ./.next/static
-COPY --from=build /app/apps/portal/public ./public
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+USER nextjs
+
+COPY --from=build --chown=nextjs:nodejs /app/apps/portal/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/portal/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/portal/public ./public
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
 
 CMD ["node", "server.js"]

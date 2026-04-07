@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getFaqs, createFaq, updateFaq } from "@/lib/api-client";
 import type { FAQItem, PaginatedResponse } from "@myfundingtrade/types";
@@ -10,6 +10,14 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function FaqEditorPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <FaqEditorContent />
+    </Suspense>
+  );
+}
+
+function FaqEditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");

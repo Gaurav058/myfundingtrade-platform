@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button, Badge, SectionHeader } from "@myfundingtrade/ui";
-import { challengePlans, challengeRules } from "@/data/challenges";
+import { challengePlans as fallbackPlans, challengeRules } from "@/data/challenges";
+import { apiFetch } from "@/lib/api";
 import { Target, Shield, AlertTriangle, Calendar, Clock, Zap } from "lucide-react";
+import { DisclaimerSection } from "@/components/sections/disclaimer";
 
 export const metadata: Metadata = {
   title: "Challenge Plans",
@@ -19,7 +21,25 @@ const ruleIcons: Record<string, React.ElementType> = {
   zap: Zap,
 };
 
-export default function ChallengePage() {
+export default async function ChallengePage() {
+  // Fetch plans from API with static fallback
+  const apiPlans = await apiFetch<any[]>("/api/v1/challenge-plans");
+  const challengePlans = apiPlans && apiPlans.length > 0
+    ? apiPlans.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        accountSize: p.accountSize ?? p.variants?.[0]?.accountSize ?? 0,
+        price: p.price ?? p.variants?.[0]?.price ?? 0,
+        profitTarget: p.profitTarget ?? 8,
+        maxDailyLoss: p.maxDailyLoss ?? 5,
+        maxTotalLoss: p.maxTotalLoss ?? 10,
+        profitSplit: p.profitSplit ?? 80,
+        minTradingDays: p.minTradingDays ?? 5,
+        leverage: p.leverage ?? "1:100",
+        popular: p.popular ?? false,
+      }))
+    : fallbackPlans;
   return (
     <>
       {/* Hero */}
@@ -120,6 +140,9 @@ export default function ChallengePage() {
           </div>
         </div>
       </section>
+
+      {/* Risk Disclaimer */}
+      <DisclaimerSection />
 
       {/* CTA */}
       <section className="py-20">

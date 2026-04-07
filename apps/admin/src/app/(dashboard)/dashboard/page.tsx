@@ -1,27 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getDashboardKpis, type DashboardKpis } from "@/lib/api-client";
+import { getDashboardKpis, getAuditLogs, type DashboardKpis } from "@/lib/api-client";
 import { StatCard } from "@/components/ui/stat-card";
 import { LoadingState, ErrorState } from "@/components/ui/shared";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   Users, Briefcase, Shield, DollarSign, Ticket, TrendingUp, UsersRound, ShoppingCart,
 } from "lucide-react";
-import { mockAuditLogs } from "@/lib/mock-data";
 import { AuditTrail } from "@/components/ui/audit-trail";
 
 export default function DashboardPage() {
   const [kpis, setKpis] = useState<DashboardKpis | null>(null);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const load = () => {
     setLoading(true);
     setError(false);
-    getDashboardKpis().then((res) => {
-      if (res.success && res.data) setKpis(res.data);
+    Promise.all([getDashboardKpis(), getAuditLogs(1)]).then(([kpiRes, activityRes]) => {
+      if (kpiRes.success && kpiRes.data) setKpis(kpiRes.data);
       else setError(true);
+      if (activityRes.success && activityRes.data) {
+        const items = Array.isArray(activityRes.data) ? activityRes.data : (activityRes.data as any).items ?? [];
+        setRecentActivity(items.slice(0, 5));
+      }
       setLoading(false);
     });
   };
@@ -52,7 +56,7 @@ export default function DashboardPage() {
         <StatCard label="Total Orders" value={kpis.totalOrders} icon={<ShoppingCart className="h-4 w-4" />} />
       </div>
 
-      <AuditTrail logs={mockAuditLogs.slice(0, 5)} title="Recent Admin Activity" />
+      <AuditTrail logs={recentActivity} title="Recent Admin Activity" />
     </div>
   );
 }

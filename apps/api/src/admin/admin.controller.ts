@@ -20,4 +20,13 @@ export class AdminController {
   getRecentActivity(@Query('limit') limit?: string) {
     return this.service.getRecentActivity(limit ? parseInt(limit, 10) : 20);
   }
+
+  @Get('audit-logs')
+  @Roles('SUPER_ADMIN', 'FINANCE_ADMIN')
+  getAuditLogs(@Query('page') page?: string, @Query('pageSize') pageSize?: string) {
+    return this.service.getAuditLogs(
+      page ? parseInt(page, 10) : 1,
+      pageSize ? parseInt(pageSize, 10) : 20,
+    );
+  }
 }

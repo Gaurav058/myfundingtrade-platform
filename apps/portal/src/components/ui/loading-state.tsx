@@ -9,7 +9,7 @@ function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-lg bg-[var(--color-bg-surface-hover)]",
+        "animate-shimmer rounded-lg bg-[var(--color-bg-surface-hover)]",
         className,
       )}
     />

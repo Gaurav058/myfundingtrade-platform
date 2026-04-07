@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@myfundingtrade/ui";
-import { register } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

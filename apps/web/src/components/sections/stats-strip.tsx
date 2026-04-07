@@ -5,7 +5,7 @@ import { stats } from "@/data/site";
 
 export function StatsStripSection() {
   return (
-    <section className="border-y border-[#1a1f36] bg-[#0a0e1a] py-12">
+    <section className="border-y border-[var(--color-border)] bg-[var(--color-bg-raised)] py-12">
       <div className="section-container">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {stats.map((stat, i) => (

@@ -6,10 +6,15 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { SubmitKycDto, ReviewKycDto } from './dto/kyc.dto';
 import { PaginationDto } from '../common/dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 @Injectable()
 export class KycService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async submit(userId: string, dto: SubmitKycDto) {
     const existing = await this.prisma.kycSubmission.findFirst({
@@ -22,7 +27,7 @@ export class KycService {
       throw new BadRequestException('KYC submission already pending review');
     }
 
-    return this.prisma.kycSubmission.create({
+    const submission = await this.prisma.kycSubmission.create({
       data: {
         userId,
         documentType: dto.documentType as any,
@@ -34,6 +39,15 @@ export class KycService {
         submittedAt: new Date(),
       },
     });
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { profile: true } });
+    this.eventEmitter.emit(NotificationEvents.KYC_SUBMITTED, {
+      userId,
+      email: user?.email,
+      firstName: user?.profile?.firstName,
+    });
+
+    return submission;
   }
 
   async getStatus(userId: string) {
@@ -73,6 +87,15 @@ export class KycService {
         },
       }),
     ]);
+
+    const user = await this.prisma.user.findUnique({ where: { id: submission.userId }, include: { profile: true } });
+    const basePayload = { userId: submission.userId, email: user?.email ?? '', firstName: user?.profile?.firstName };
+
+    if (dto.decision === 'APPROVED') {
+      this.eventEmitter.emit(NotificationEvents.KYC_APPROVED, basePayload);
+    } else if (dto.decision === 'REJECTED') {
+      this.eventEmitter.emit(NotificationEvents.KYC_REJECTED, { ...basePayload, reason: dto.rejectionReason || 'Documents could not be verified' });
+    }
 
     return updated;
   }

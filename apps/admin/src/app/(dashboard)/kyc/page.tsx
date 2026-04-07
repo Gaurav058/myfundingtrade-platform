@@ -10,7 +10,8 @@ import { FilterBar } from "@/components/ui/filter-bar";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { AuditTrail } from "@/components/ui/audit-trail";
-import { mockAuditLogs } from "@/lib/mock-data";
+import { getAuditLogs } from "@/lib/api-client";
+import type { AdminActionLog } from "@myfundingtrade/types";
 import { Eye, CheckCircle, XCircle } from "lucide-react";
 
 export default function KycPage() {
@@ -21,13 +22,18 @@ export default function KycPage() {
   const [selected, setSelected] = useState<KycSubmission | null>(null);
   const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<AdminActionLog[]>([]);
 
   const load = () => {
     setLoading(true);
     setError(false);
-    getKycSubmissions(page).then((res) => {
+    Promise.all([getKycSubmissions(page), getAuditLogs()]).then(([res, logsRes]) => {
       if (res.success && res.data) setData(res.data);
       else setError(true);
+      if (logsRes.success && logsRes.data) {
+        const items = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data as any).items ?? [];
+        setAuditLogs(items.filter((l: AdminActionLog) => l.resource === "kyc"));
+      }
       setLoading(false);
     });
   };
@@ -38,7 +44,7 @@ export default function KycPage() {
   if (loading) return <LoadingState />;
   if (error || !data) return <ErrorState onRetry={load} />;
 
-  const kycLogs = mockAuditLogs.filter((l) => l.resource === "kyc");
+  const kycLogs = auditLogs;
 
   const columns = [
     { key: "userId", header: "User", render: (r: KycSubmission) => (

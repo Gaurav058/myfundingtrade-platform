@@ -113,4 +113,19 @@ export class OrdersService {
     ]);
     return { items, total, page: query.page || 1, pageSize: query.pageSize || 20 };
   }
+
+  async cancelOrder(orderId: string, userId?: string) {
+    const where: any = { id: orderId };
+    if (userId) where.userId = userId;
+    const order = await this.prisma.order.findFirst({ where });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status !== 'PENDING_PAYMENT' && order.status !== 'DRAFT') {
+      throw new BadRequestException(`Cannot cancel order in ${order.status} state`);
+    }
+
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'CANCELLED', cancelledAt: new Date() },
+    });
+  }
 }

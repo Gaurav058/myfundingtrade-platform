@@ -2,20 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getUser } from "@/lib/api-client";
-import type { UserWithProfile } from "@myfundingtrade/types";
+import { getUser, getOrders, getAccounts, getAuditLogs } from "@/lib/api-client";
+import type { UserWithProfile, AdminActionLog } from "@myfundingtrade/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { LoadingState, ErrorState } from "@/components/ui/shared";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { AuditTrail } from "@/components/ui/audit-trail";
-import { mockAuditLogs, mockAccounts, mockOrders } from "@/lib/mock-data";
 import { ArrowLeft, Ban, ShieldCheck } from "lucide-react";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [user, setUser] = useState<UserWithProfile | null>(null);
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+  const [userAccounts, setUserAccounts] = useState<any[]>([]);
+  const [userLogs, setUserLogs] = useState<AdminActionLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
@@ -23,9 +25,25 @@ export default function UserDetailPage() {
   const load = () => {
     setLoading(true);
     setError(false);
-    getUser(id).then((res) => {
-      if (res.success && res.data) setUser(res.data);
-      else setError(true);
+    Promise.all([getUser(id), getOrders(), getAccounts(), getAuditLogs()]).then(([userRes, ordersRes, accountsRes, logsRes]) => {
+      if (userRes.success && userRes.data) {
+        setUser(userRes.data);
+        // Filter related data by user ID
+        if (ordersRes.success && ordersRes.data) {
+          const items = Array.isArray(ordersRes.data) ? ordersRes.data : (ordersRes.data as any).items ?? [];
+          setUserOrders(items.filter((o: any) => o.userId === id));
+        }
+        if (accountsRes.success && accountsRes.data) {
+          const items = Array.isArray(accountsRes.data) ? accountsRes.data : (accountsRes.data as any).items ?? [];
+          setUserAccounts(items.filter((a: any) => a.userId === id));
+        }
+        if (logsRes.success && logsRes.data) {
+          const items = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data as any).items ?? [];
+          setUserLogs(items.filter((l: AdminActionLog) => l.targetUserId === id));
+        }
+      } else {
+        setError(true);
+      }
       setLoading(false);
     });
   };
@@ -35,10 +53,6 @@ export default function UserDetailPage() {
 
   if (loading) return <LoadingState />;
   if (error || !user) return <ErrorState onRetry={load} />;
-
-  const userOrders = mockOrders.filter((o) => o.userId === user.id);
-  const userAccounts = mockAccounts.filter((a) => a.userId === user.id);
-  const userLogs = mockAuditLogs.filter((l) => l.targetUserId === user.id);
 
   const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <div>

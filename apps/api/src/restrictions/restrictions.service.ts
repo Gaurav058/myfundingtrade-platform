@@ -59,4 +59,31 @@ export class RestrictionsService {
   async remove(countryCode: string) {
     return this.prisma.geoRestriction.delete({ where: { countryCode } });
   }
+
+  // ── Platform Restrictions ─────────────────────
+
+  async getPlatformRestrictions() {
+    return this.prisma.platformRestriction.findMany({ orderBy: { key: 'asc' } });
+  }
+
+  async checkPlatformRestriction(key: string): Promise<{ key: string; enabled: boolean; description: string | null }> {
+    const restriction = await this.prisma.platformRestriction.findUnique({ where: { key } });
+    return {
+      key,
+      enabled: restriction?.isEnabled ?? false,
+      description: restriction?.description ?? null,
+    };
+  }
+
+  async upsertPlatformRestriction(key: string, data: { isEnabled?: boolean; description?: string; metadata?: any }) {
+    return this.prisma.platformRestriction.upsert({
+      where: { key },
+      create: { key, isEnabled: data.isEnabled ?? false, description: data.description, metadata: data.metadata },
+      update: { isEnabled: data.isEnabled, description: data.description, metadata: data.metadata },
+    });
+  }
+
+  async removePlatformRestriction(key: string) {
+    return this.prisma.platformRestriction.delete({ where: { key } });
+  }
 }

@@ -23,7 +23,7 @@ export function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
-              className="glow-card rounded-2xl border border-[#1a1f36] bg-[#0c1020] p-6"
+              className="glow-card rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6"
             >
               <div className="mb-4 flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, si) => (
@@ -38,7 +38,7 @@ export function TestimonialsSection() {
                 &ldquo;{t.text}&rdquo;
               </blockquote>
 
-              <div className="flex items-center gap-3 border-t border-[#1a1f36] pt-4">
+              <div className="flex items-center gap-3 border-t border-[var(--color-border)] pt-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 text-sm font-bold text-green-400">
                   {t.name.split(" ").map((n) => n[0]).join("")}
                 </div>

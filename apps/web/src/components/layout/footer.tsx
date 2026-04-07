@@ -23,7 +23,7 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#1a1f36] bg-[#06080f]">
+    <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg)]">
       {/* Main footer */}
       <div className="section-container py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
@@ -84,7 +84,7 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#1a1f36]">
+      <div className="border-t border-[var(--color-border)]">
         <div className="section-container flex flex-col items-center justify-between gap-4 py-6 text-xs text-slate-600 sm:flex-row">
           <p>&copy; {new Date().getFullYear()} MyFundingTrade. All rights reserved.</p>
           <p className="max-w-xl text-center sm:text-right">

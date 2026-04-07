@@ -33,15 +33,15 @@ export function DataTable<T extends Record<string, any>>({
     <div className="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-[var(--color-border)]">
+          <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg-muted)]">
             {columns.map((col) => (
-              <th key={col.key} className={`px-4 py-3 text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] ${col.className ?? ""}`}>
+              <th key={col.key} className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] ${col.className ?? ""}`}>
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-[var(--color-border)]">
+        <tbody className="divide-y divide-[var(--color-border-subtle)]">
           {data.map((row) => (
             <tr
               key={String(row[keyField])}

@@ -6,24 +6,24 @@ export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getRevenueStats(startDate?: string, endDate?: string) {
-    const where: any = { status: 'COMPLETED' };
+    const where: any = { status: 'SUCCEEDED' };
     if (startDate || endDate) {
-      where.completedAt = {};
-      if (startDate) where.completedAt.gte = new Date(startDate);
-      if (endDate) where.completedAt.lte = new Date(endDate);
+      where.paidAt = {};
+      if (startDate) where.paidAt.gte = new Date(startDate);
+      if (endDate) where.paidAt.lte = new Date(endDate);
     }
 
     const [total, byMonth] = await Promise.all([
       this.prisma.payment.aggregate({ where, _sum: { amount: true }, _count: { id: true } }),
       this.prisma.$queryRaw`
         SELECT 
-          DATE_TRUNC('month', completed_at) as month,
+          DATE_TRUNC('month', paid_at) as month,
           SUM(amount) as revenue,
           COUNT(*)::int as count
         FROM payments
-        WHERE status = 'COMPLETED'
-          AND completed_at IS NOT NULL
-        GROUP BY DATE_TRUNC('month', completed_at)
+        WHERE status = 'SUCCEEDED'
+          AND paid_at IS NOT NULL
+        GROUP BY DATE_TRUNC('month', paid_at)
         ORDER BY month DESC
         LIMIT 12
       ` as any,
@@ -62,10 +62,10 @@ export class AnalyticsService {
           cp.name as plan_name,
           COUNT(ta.id)::int as total,
           COUNT(CASE WHEN ta.status = 'FUNDED' THEN 1 END)::int as passed,
-          COUNT(CASE WHEN ta.status = 'FAILED' THEN 1 END)::int as failed
+          COUNT(CASE WHEN ta.status = 'BREACHED' THEN 1 END)::int as failed
         FROM trader_accounts ta
-        JOIN challenge_plan_variants cpv ON ta.variant_id = cpv.id
-        JOIN challenge_plans cp ON cpv.plan_id = cp.id
+        JOIN challenge_variants cv ON ta.variant_id = cv.id
+        JOIN challenge_plans cp ON cv.plan_id = cp.id
         WHERE ta.deleted_at IS NULL
         GROUP BY cp.name
       ` as any,

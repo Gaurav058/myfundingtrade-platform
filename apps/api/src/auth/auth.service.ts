@@ -16,6 +16,8 @@ import { REDIS_CLIENT } from '../redis/redis.module';
 import Redis from 'ioredis';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { SecurityService } from '../security/security.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationEvents } from '../notifications/events';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +29,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly security: SecurityService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async register(dto: RegisterDto, ip: string, userAgent: string) {
@@ -56,6 +59,12 @@ export class AuthService {
     await this.storeRefreshToken(user.id, tokens.refreshToken, ip, userAgent);
 
     this.logger.log(`User registered: id=${user.id} email=${user.email} ip=${ip}`);
+
+    this.eventEmitter.emit(NotificationEvents.REGISTRATION, {
+      userId: user.id,
+      email: user.email,
+      firstName: user.profile?.firstName,
+    });
 
     return {
       user: this.sanitizeUser(user),
@@ -110,39 +119,17 @@ export class AuthService {
     const stored = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
 
     if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
-      if (stored?.family) {
-        // ── TOKEN REUSE DETECTED ──
-        // A previously-used refresh token was replayed → revoke entire family
-        // and invalidate all access tokens (possible token theft).
-        await this.prisma.refreshToken.updateMany({
-          where: { family: stored.family, revokedAt: null },
-          data: { revokedAt: new Date() },
-        });
-        await this.security.invalidateUserTokens(stored.userId);
-        await this.security.logSuspiciousActivity({
-          type: 'REFRESH_TOKEN_REUSE',
-          ip,
-          userId: stored.userId,
-          userAgent,
-          details: `Refresh token reuse detected for family ${stored.family}`,
-        });
-      }
       throw new UnauthorizedException('Invalid refresh token');
     }
-
-    // Rotate: revoke current token
-    await this.prisma.refreshToken.update({
-      where: { id: stored.id },
-      data: { revokedAt: new Date() },
-    });
 
     const user = await this.prisma.user.findUnique({ where: { id: stored.userId } });
     if (!user || user.status !== 'ACTIVE') throw new UnauthorizedException('Account unavailable');
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
-    await this.storeRefreshToken(user.id, tokens.refreshToken, ip, userAgent, stored.family);
+    // Issue new access token only — keep the same refresh token
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = await this.jwtService.signAsync(payload);
 
-    return tokens;
+    return { accessToken, refreshToken };
   }
 
   async logout(userId: string, refreshToken?: string) {
@@ -194,8 +181,17 @@ export class AuthService {
   ) {
     const tokenHash = this.hashToken(token);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    await this.prisma.refreshToken.create({
-      data: {
+    await this.prisma.refreshToken.upsert({
+      where: { tokenHash },
+      update: {
+        userId,
+        family: family || crypto.randomUUID(),
+        ipAddress: ip || '0.0.0.0',
+        userAgent: userAgent || 'unknown',
+        expiresAt,
+        revokedAt: null,
+      },
+      create: {
         userId,
         tokenHash,
         family: family || crypto.randomUUID(),

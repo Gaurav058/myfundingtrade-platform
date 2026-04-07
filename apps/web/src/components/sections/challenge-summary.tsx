@@ -27,7 +27,7 @@ export function ChallengeSummarySection() {
               className={`glow-card relative flex flex-col rounded-2xl border p-6 transition-all duration-300 ${
                 plan.popular
                   ? "border-green-500/30 bg-green-500/5"
-                  : "border-[#1a1f36] bg-[#0c1020]"
+                  : "border-[var(--color-border)] bg-[var(--color-bg-surface)]"
               }`}
             >
               {plan.popular && (

@@ -43,7 +43,7 @@ export function CommunitySection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.35 }}
-                className="glow-card flex flex-col items-center rounded-2xl border border-[#1a1f36] bg-[#0c1020] p-6 text-center transition-colors hover:border-green-500/20"
+                className="glow-card flex flex-col items-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-6 text-center transition-colors hover:border-[var(--color-border-accent)]"
               >
                 <Icon className="mb-3 h-8 w-8 text-green-400" />
                 <h3 className="mb-1 font-semibold text-slate-50">{link.platform}</h3>

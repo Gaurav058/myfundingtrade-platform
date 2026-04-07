@@ -6,9 +6,11 @@ import { Button, Input } from "@myfundingtrade/ui";
 import { LoadingRows } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { getMe, updateProfile } from "@/lib/api-client";
+import { useToast } from "@/components/ui/toast";
 import type { UserWithProfile } from "@myfundingtrade/types";
 
 export default function ProfilePage() {
+  const { success: toastSuccess, error: toastError } = useToast();
   const [user, setUser] = useState<UserWithProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -53,7 +55,11 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await updateProfile({ ...form, addressLine1: form.address } as any);
+      const res = await updateProfile({ ...form, addressLine1: form.address } as any);
+      if (res.success) toastSuccess("Profile updated");
+      else toastError(res.error ?? "Failed to save");
+    } catch {
+      toastError("An unexpected error occurred");
     } finally {
       setSaving(false);
     }

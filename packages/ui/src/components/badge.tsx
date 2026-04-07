@@ -15,12 +15,12 @@ export function Badge({
     <span
       className={cn(
         "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium",
-        variant === "default" && "bg-slate-800 text-slate-300",
+        variant === "default" && "bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border)]",
         variant === "brand" &&
-          "border border-green-500/20 bg-green-500/10 text-green-400",
+          "border border-[var(--color-brand)]/20 bg-[var(--color-brand-muted)] text-[var(--color-brand)]",
         variant === "gold" &&
           "border border-amber-500/20 bg-amber-500/10 text-amber-400",
-        variant === "outline" && "border border-slate-700 text-slate-400",
+        variant === "outline" && "border border-[var(--color-border)] text-[var(--color-text-muted)]",
         className
       )}
       {...props}

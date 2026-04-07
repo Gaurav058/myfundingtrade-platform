@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Config validation
 import { validate } from './config/env.validation';
@@ -18,6 +19,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { GeoRestrictionGuard } from './common/guards/geo-restriction.guard';
 
 // Feature Modules
 import { HealthModule } from './health/health.module';
@@ -57,6 +59,7 @@ import { AuditModule } from './audit/audit.module';
       { name: 'medium', ttl: 10000, limit: 20 },
       { name: 'long', ttl: 60000, limit: 100 },
     ]),
+    EventEmitterModule.forRoot(),
 
     // Core infrastructure
     PrismaModule,
@@ -103,6 +106,8 @@ import { AuditModule } from './audit/audit.module';
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     // Consistent error responses
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    // Opt-in geo restriction guard (use @GeoRestricted() on routes)
+    GeoRestrictionGuard,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString, IsArray, IsUUID } from 'class-validator';
 
 const LEGAL_TYPES = [
   'TERMS_OF_SERVICE',
@@ -47,4 +47,32 @@ export class UpdateLegalDocumentDto {
   @IsOptional()
   @IsDateString()
   effectiveAt?: string;
+}
+
+export class RecordConsentDto {
+  @IsUUID()
+  documentId: string;
+}
+
+export class BulkConsentDto {
+  @IsArray()
+  @IsUUID('4', { each: true })
+  documentIds: string[];
+}
+
+export class CookieConsentDto {
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsString()
+  sessionId: string;
+
+  @IsOptional()
+  @IsBoolean()
+  analytics?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  marketing?: boolean;
 }

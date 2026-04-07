@@ -9,8 +9,8 @@ export function Card({ className, variant = 'default', children, ...props }: Car
   return (
     <div
       className={cn(
-        'rounded-xl bg-slate-900 p-6',
-        variant === 'bordered' && 'border border-slate-800',
+        'rounded-xl bg-[var(--color-bg-surface)] p-6 transition-colors duration-150',
+        variant === 'bordered' && 'border border-[var(--color-border)]',
         className,
       )}
       {...props}
@@ -30,7 +30,7 @@ export function CardHeader({ className, children, ...props }: HTMLAttributes<HTM
 
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-lg font-semibold text-white', className)} {...props}>
+    <h3 className={cn('text-lg font-semibold text-[var(--color-text-heading)]', className)} {...props}>
       {children}
     </h3>
   );
@@ -38,7 +38,7 @@ export function CardTitle({ className, children, ...props }: HTMLAttributes<HTML
 
 export function CardContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('text-slate-400', className)} {...props}>
+    <div className={cn('text-[var(--color-text-muted)]', className)} {...props}>
       {children}
     </div>
   );

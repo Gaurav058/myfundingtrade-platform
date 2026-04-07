@@ -1,19 +1,43 @@
 @import "tailwindcss";
 
 @theme {
+  /* Backgrounds (layered depth) */
   --color-bg: #06080f;
+  --color-bg-raised: #0a0e1a;
+  --color-bg-surface: #0c1020;
+  --color-bg-surface-hover: #111631;
+  --color-bg-elevated: #161c30;
   --color-bg-card: #0c1020;
   --color-bg-card-hover: #111631;
+
+  /* Borders */
   --color-border: #1a1f36;
-  --color-border-accent: #22c55e33;
+  --color-border-subtle: #12162a;
+  --color-border-accent: rgba(34, 197, 94, 0.2);
+
+  /* Text */
   --color-text: #e2e8f0;
   --color-text-muted: #64748b;
   --color-text-heading: #f8fafc;
+  --color-text-subtle: #475569;
+
+  /* Brand */
   --color-brand: #22c55e;
   --color-brand-hover: #16a34a;
-  --color-brand-muted: #22c55e1a;
-  --color-gold: #f59e0b;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-brand-muted: rgba(34, 197, 94, 0.1);
+
+  /* Semantic */
+  --color-danger: #ef4444;
+  --color-danger-muted: rgba(239, 68, 68, 0.1);
+  --color-warning: #f59e0b;
+  --color-warning-muted: rgba(245, 158, 11, 0.1);
+  --color-info: #3b82f6;
+  --color-info-muted: rgba(59, 130, 246, 0.1);
+  --color-gold: #eab308;
+
+  /* Typography */
+  --font-sans: var(--font-inter, "Inter"), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, monospace;
 }
 
 /* ── Base ── */
@@ -32,9 +56,16 @@ body {
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--color-bg); }
-::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #283050; }
+
+/* ── Focus ── */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
 
 /* ── Utility classes ── */
 .section-container {
@@ -72,4 +103,25 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
+}
+
+/* ── Animations ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

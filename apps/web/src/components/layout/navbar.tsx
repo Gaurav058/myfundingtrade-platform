@@ -20,7 +20,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1a1f36] bg-[#06080f]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-xl">
       <nav className="section-container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-1 text-lg font-bold tracking-tight">
@@ -71,7 +71,7 @@ export function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden border-t border-[#1a1f36] bg-[#06080f] lg:hidden"
+            className="overflow-hidden border-t border-[var(--color-border)] bg-[var(--color-bg)] lg:hidden"
           >
             <div className="section-container flex flex-col gap-1 py-4">
               {navLinks.map((link) => (
@@ -79,12 +79,12 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-slate-300 transition-colors hover:bg-[#0c1020] hover:text-white"
+                  className="rounded-lg px-3 py-2.5 text-sm text-slate-300 transition-colors hover:bg-[var(--color-bg-surface)] hover:text-white"
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="mt-3 flex flex-col gap-2 border-t border-[#1a1f36] pt-4">
+              <div className="mt-3 flex flex-col gap-2 border-t border-[var(--color-border)] pt-4">
                 <Button variant="outline" size="sm" asChild>
                   <a href="https://app.myfundingtrade.com" target="_blank" rel="noopener noreferrer">
                     Client Area

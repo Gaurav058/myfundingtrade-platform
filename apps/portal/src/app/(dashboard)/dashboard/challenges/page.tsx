@@ -8,12 +8,12 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { LoadingRows } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getAccounts } from "@/lib/api-client";
-import { mockOrders } from "@/lib/mock-data";
-import type { TraderAccount } from "@myfundingtrade/types";
+import { getAccounts, getOrders } from "@/lib/api-client";
+import type { TraderAccount, Order } from "@myfundingtrade/types";
 
 export default function ChallengesPage() {
   const [accounts, setAccounts] = useState<TraderAccount[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -21,8 +21,9 @@ export default function ChallengesPage() {
     setLoading(true);
     setError(false);
     try {
-      const res = await getAccounts();
-      if (res.success && res.data) setAccounts(res.data);
+      const [accRes, ordRes] = await Promise.all([getAccounts(), getOrders()]);
+      if (accRes.success && accRes.data) setAccounts(accRes.data);
+      if (ordRes.success && ordRes.data) setOrders(ordRes.data);
     } catch {
       setError(true);
     } finally {
@@ -43,7 +44,7 @@ export default function ChallengesPage() {
       <section>
         <h2 className="mb-4 text-lg font-semibold text-white">Purchase History</h2>
         <div className="divide-y divide-[var(--color-border)] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-          {mockOrders.map((order) => (
+          {orders.map((order) => (
             <div key={order.id} className="flex items-center justify-between px-5 py-4">
               <div>
                 <p className="text-sm font-medium text-neutral-200">Order #{order.id.slice(-6)}</p>
@@ -72,8 +73,7 @@ export default function ChallengesPage() {
             description="Purchase a challenge to start your funded trading journey."
             action={
               <Link
-                href="https://myfundingtrade.com/challenges"
-                target="_blank"
+                href="/dashboard/challenges/buy"
                 className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-black hover:bg-[var(--color-brand-hover)]"
               >
                 <ShoppingCart className="h-4 w-4" /> Browse Challenges

@@ -3,7 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { getAffiliates, getAffiliateConversions, getCommissionPayouts, getAffiliateClicks, getAffiliateFraudSignals, updateAffiliateStatus, reviewAffiliateConversion, reviewCommissionPayout } from "@/lib/api-client";
 import type { AffiliateAccount, AffiliateConversion, CommissionPayout, AffiliateClick, PaginatedResponse } from "@myfundingtrade/types";
-import type { FraudSignal } from "@/lib/mock-data";
+
+interface FraudSignal {
+  type: string;
+  severity: "HIGH" | "MEDIUM" | "LOW";
+  detail: string;
+}
 import { DataTable } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/ui/page-header";
@@ -90,11 +95,11 @@ export default function AffiliatesPage() {
       <span className="rounded bg-[var(--color-bg)] px-2 py-0.5 text-xs font-medium">T{r.tier}</span>
     )},
     { key: "totalEarnings", header: "Total Earnings", render: (r: AffiliateAccount) => (
-      <span className="font-semibold text-[var(--color-brand)]">${r.totalEarnings.toLocaleString()}</span>
+      <span className="font-semibold text-[var(--color-brand)]">${Number(r.totalEarnings).toLocaleString()}</span>
     )},
-    { key: "totalPaid", header: "Paid", render: (r: AffiliateAccount) => `$${r.totalPaid.toLocaleString()}` },
+    { key: "totalPaid", header: "Paid", render: (r: AffiliateAccount) => `$${Number(r.totalPaid).toLocaleString()}` },
     { key: "pendingBalance", header: "Pending", render: (r: AffiliateAccount) => (
-      <span className={r.pendingBalance > 0 ? "text-[var(--color-warning)]" : ""}>${r.pendingBalance.toLocaleString()}</span>
+      <span className={Number(r.pendingBalance) > 0 ? "text-[var(--color-warning)]" : ""}>${Number(r.pendingBalance).toLocaleString()}</span>
     )},
     { key: "fraud", header: "Fraud", render: (r: AffiliateAccount) => {
       const affFraud = fraudSignals.find((f) => f.affiliateId === r.id);
@@ -112,9 +117,9 @@ export default function AffiliatesPage() {
 
   const convColumns = [
     { key: "orderId", header: "Order", render: (r: AffiliateConversion) => <span className="font-mono text-xs">{r.orderId}</span> },
-    { key: "orderAmount", header: "Amount", render: (r: AffiliateConversion) => `$${r.orderAmount.toLocaleString()}` },
+    { key: "orderAmount", header: "Amount", render: (r: AffiliateConversion) => `$${Number(r.orderAmount).toLocaleString()}` },
     { key: "commissionRate", header: "Rate", render: (r: AffiliateConversion) => `${r.commissionRate}%` },
-    { key: "commissionAmount", header: "Commission", render: (r: AffiliateConversion) => <span className="font-semibold">${r.commissionAmount.toFixed(2)}</span> },
+    { key: "commissionAmount", header: "Commission", render: (r: AffiliateConversion) => <span className="font-semibold">${Number(r.commissionAmount).toFixed(2)}</span> },
     { key: "status", header: "Status", render: (r: AffiliateConversion) => <StatusBadge status={r.status} /> },
     { key: "actions", header: "Actions", render: (r: AffiliateConversion) => r.status === "PENDING" ? (
       <div className="flex gap-1">
@@ -126,7 +131,7 @@ export default function AffiliatesPage() {
   ];
 
   const payoutColumns = [
-    { key: "amount", header: "Amount", render: (r: CommissionPayout) => <span className="font-semibold">${r.amount.toLocaleString()}</span> },
+    { key: "amount", header: "Amount", render: (r: CommissionPayout) => <span className="font-semibold">${Number(r.amount).toLocaleString()}</span> },
     { key: "payoutMethod", header: "Method", render: (r: CommissionPayout) => r.payoutMethod?.replace("_", " ") ?? "—" },
     { key: "status", header: "Status", render: (r: CommissionPayout) => <StatusBadge status={r.status} /> },
     { key: "actions", header: "Actions", render: (r: CommissionPayout) => r.status === "PENDING" ? (
@@ -163,11 +168,11 @@ export default function AffiliatesPage() {
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4">
           <div className="rounded-lg bg-[var(--color-brand-muted)] p-2"><DollarSign className="h-4 w-4 text-[var(--color-brand)]" /></div>
-          <div><p className="text-xs text-[var(--color-text-muted)]">Total Paid</p><p className="text-lg font-semibold">${data.items.reduce((s, a) => s + a.totalPaid, 0).toLocaleString()}</p></div>
+          <div><p className="text-xs text-[var(--color-text-muted)]">Total Paid</p><p className="text-lg font-semibold">${data.items.reduce((s, a) => s + Number(a.totalPaid), 0).toLocaleString()}</p></div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4">
           <div className="rounded-lg bg-[var(--color-warning-muted)] p-2"><TrendingUp className="h-4 w-4 text-[var(--color-warning)]" /></div>
-          <div><p className="text-xs text-[var(--color-text-muted)]">Pending</p><p className="text-lg font-semibold">${data.items.reduce((s, a) => s + a.pendingBalance, 0).toLocaleString()}</p></div>
+          <div><p className="text-xs text-[var(--color-text-muted)]">Pending</p><p className="text-lg font-semibold">${data.items.reduce((s, a) => s + Number(a.pendingBalance), 0).toLocaleString()}</p></div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4">
           <div className="rounded-lg bg-red-900/30 p-2"><ShieldAlert className="h-4 w-4 text-red-400" /></div>

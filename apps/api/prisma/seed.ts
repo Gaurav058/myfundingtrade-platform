@@ -5,6 +5,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
@@ -12,8 +13,7 @@ const prisma = new PrismaClient();
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function hashPassword(password: string): string {
-  // bcrypt-style hashing placeholder — seed only (not used for real auth)
-  return crypto.createHash('sha256').update(password).digest('hex');
+  return bcrypt.hashSync(password, 12);
 }
 
 function randomBetween(min: number, max: number): number {

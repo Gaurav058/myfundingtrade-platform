@@ -5,7 +5,10 @@ import { AlertTriangle, Loader2, Inbox } from "lucide-react";
 export function LoadingState({ message = "Loading..." }: { message?: string }) {
   return (
     <div className="flex h-64 flex-col items-center justify-center gap-3">
-      <Loader2 className="h-6 w-6 animate-spin text-[var(--color-brand)]" />
+      <div className="relative h-8 w-8">
+        <div className="absolute inset-0 animate-ping rounded-full bg-[var(--color-brand-muted)]" />
+        <Loader2 className="relative h-8 w-8 animate-spin text-[var(--color-brand)]" />
+      </div>
       <p className="text-sm text-[var(--color-text-muted)]">{message}</p>
     </div>
   );
@@ -14,10 +17,12 @@ export function LoadingState({ message = "Loading..." }: { message?: string }) {
 export function ErrorState({ message = "Something went wrong", onRetry }: { message?: string; onRetry?: () => void }) {
   return (
     <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-      <AlertTriangle className="h-8 w-8 text-[var(--color-danger)]" />
-      <p className="text-sm text-[var(--color-text-muted)]">{message}</p>
+      <div className="rounded-full bg-[var(--color-danger-muted)] p-3">
+        <AlertTriangle className="h-6 w-6 text-[var(--color-danger)]" />
+      </div>
+      <p className="text-sm font-medium text-[var(--color-text)]">{message}</p>
       {onRetry && (
-        <button onClick={onRetry} className="rounded-lg bg-[var(--color-bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-surface-hover)]">
+        <button onClick={onRetry} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-surface-hover)]">
           Retry
         </button>
       )}
@@ -28,7 +33,9 @@ export function ErrorState({ message = "Something went wrong", onRetry }: { mess
 export function EmptyState({ icon, title, description, action }: { icon?: React.ReactNode; title: string; description?: string; action?: React.ReactNode }) {
   return (
     <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-      {icon ?? <Inbox className="h-8 w-8 text-[var(--color-text-muted)]" />}
+      <div className="rounded-full bg-[var(--color-bg-elevated)] p-3">
+        {icon ?? <Inbox className="h-6 w-6 text-[var(--color-text-muted)]" />}
+      </div>
       <p className="text-sm font-medium text-[var(--color-text)]">{title}</p>
       {description && <p className="max-w-xs text-center text-xs text-[var(--color-text-muted)]">{description}</p>}
       {action}
@@ -47,14 +54,14 @@ export function Pagination({
         <button
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface-hover)] disabled:opacity-40"
+          className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-surface-hover)] disabled:opacity-40"
         >
           Previous
         </button>
         <button
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface-hover)] disabled:opacity-40"
+          className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-surface-hover)] disabled:opacity-40"
         >
           Next
         </button>

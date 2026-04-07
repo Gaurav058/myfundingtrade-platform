@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, HttpCode, HttpStatus, Req, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -44,12 +44,13 @@ export class AuthController {
   async refresh(
     @Body() dto: RefreshDto,
     @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
   ) {
     // Accept refresh token from cookie or body (cookie takes precedence)
     const token = req.signedCookies?.refreshToken || dto.refreshToken;
+    if (!token || token === true) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
     const result = await this.authService.refresh(token, req.ip || '0.0.0.0', req.headers['user-agent'] || '');
-    this.setRefreshCookie(res, result.refreshToken);
     return { accessToken: result.accessToken };
   }
 
@@ -80,26 +81,28 @@ export class AuthController {
 
   private setRefreshCookie(res: Response, token: string) {
     const isProduction = this.config.get('NODE_ENV') === 'production';
+    const domain = this.config.get('COOKIE_DOMAIN', '') || undefined;
     res.cookie('refreshToken', token, {
       httpOnly: true,
       secure: isProduction,
       signed: true,
       sameSite: isProduction ? 'strict' : 'lax',
-      domain: this.config.get('COOKIE_DOMAIN', undefined),
-      path: '/api/v1/auth',
+      domain,
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   }
 
   private clearRefreshCookie(res: Response) {
     const isProduction = this.config.get('NODE_ENV') === 'production';
+    const domain = this.config.get('COOKIE_DOMAIN', '') || undefined;
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: isProduction,
       signed: true,
       sameSite: isProduction ? 'strict' : 'lax',
-      domain: this.config.get('COOKIE_DOMAIN', undefined),
-      path: '/api/v1/auth',
+      domain,
+      path: '/',
     });
   }
 }

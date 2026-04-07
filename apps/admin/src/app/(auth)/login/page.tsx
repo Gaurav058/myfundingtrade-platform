@@ -1,9 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useAdminAuth } from "@/lib/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,12 +17,16 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    // Mock delay — in production this calls adminLogin()
-    await new Promise((r) => setTimeout(r, 800));
-    if (email === "admin@myfundingtrade.com" && password === "admin") {
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid credentials. Use admin@myfundingtrade.com / admin");
+    try {
+      const res = await login(email, password);
+      if (res.success) {
+        router.push("/dashboard");
+      } else {
+        setError(res.error ?? "Invalid credentials");
+        setLoading(false);
+      }
+    } catch {
+      setError("An unexpected error occurred");
       setLoading(false);
     }
   };
