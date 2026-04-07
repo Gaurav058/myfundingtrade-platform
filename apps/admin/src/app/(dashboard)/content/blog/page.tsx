@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { Plus, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 export default function BlogPage() {
   const [data, setData] = useState<PaginatedResponse<BlogPost> | null>(null);
@@ -68,9 +69,9 @@ export default function BlogPage() {
         title="Blog Posts"
         description={`${data.total} posts`}
         actions={
-          <button className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+          <Link href="/content/blog/editor" className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
             <Plus className="h-4 w-4" /> New Post
-          </button>
+          </Link>
         }
       />
 

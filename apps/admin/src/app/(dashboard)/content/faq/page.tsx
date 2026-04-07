@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { Plus, Eye, EyeOff, GripVertical } from "lucide-react";
+import Link from "next/link";
 
 export default function FaqPage() {
   const [data, setData] = useState<PaginatedResponse<FAQItem> | null>(null);
@@ -72,9 +73,9 @@ export default function FaqPage() {
         title="FAQ Management"
         description={`${publishedCount} published, ${data.total - publishedCount} hidden`}
         actions={
-          <button className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+          <Link href="/content/faq/editor" className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
             <Plus className="h-4 w-4" /> Add FAQ
-          </button>
+          </Link>
         }
       />
       <FilterBar

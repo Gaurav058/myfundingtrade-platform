@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateLegalDocumentDto, UpdateLegalDocumentDto } from './dto/legal.dto';
 
 @Injectable()
 export class LegalService {
@@ -22,22 +23,27 @@ export class LegalService {
     });
   }
 
-  async create(data: { title: string; type: string; version: string; content: string; effectiveAt: string; isActive?: boolean }) {
+  async create(dto: CreateLegalDocumentDto) {
     return this.prisma.legalDocument.create({
       data: {
-        title: data.title,
-        type: data.type as any,
-        version: data.version,
-        content: data.content,
-        effectiveAt: new Date(data.effectiveAt),
-        isActive: data.isActive ?? true,
+        title: dto.title,
+        type: dto.type as any,
+        version: dto.version,
+        content: dto.content,
+        effectiveAt: new Date(dto.effectiveAt),
+        isActive: dto.isActive ?? true,
       },
     });
   }
 
-  async update(id: string, data: { title?: string; content?: string; isActive?: boolean }) {
+  async update(id: string, dto: UpdateLegalDocumentDto) {
     const doc = await this.prisma.legalDocument.findUnique({ where: { id } });
     if (!doc) throw new NotFoundException('Legal document not found');
+    const data: any = {};
+    if (dto.title !== undefined) data.title = dto.title;
+    if (dto.content !== undefined) data.content = dto.content;
+    if (dto.isActive !== undefined) data.isActive = dto.isActive;
+    if (dto.effectiveAt !== undefined) data.effectiveAt = new Date(dto.effectiveAt);
     return this.prisma.legalDocument.update({ where: { id }, data });
   }
 

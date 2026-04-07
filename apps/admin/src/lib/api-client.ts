@@ -104,8 +104,22 @@ export async function updateTicketStatus(ticketId: string, status: string) { awa
 export async function getBlogPosts(page?: number) { await delay(); return ok(paginate(mockBlogPosts, page)); }
 export async function getBlogPost(id: string) { await delay(); return ok(mockBlogPosts.find((p) => p.id === id)); }
 export async function getBlogCategories() { await delay(); return ok(mockBlogCategories); }
+export async function createBlogPost(data: Record<string, unknown>) { await delay(); return ok({ id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }); }
+export async function updateBlogPost(id: string, data: Record<string, unknown>) { await delay(); return ok({ id, ...data }); }
+export async function deleteBlogPost(id: string) { await delay(); return ok({ id }); }
+export async function createBlogCategory(data: Record<string, unknown>) { await delay(); return ok({ id: crypto.randomUUID(), ...data }); }
+export async function updateBlogCategory(id: string, data: Record<string, unknown>) { await delay(); return ok({ id, ...data }); }
+export async function deleteBlogCategory(id: string) { await delay(); return ok({ id }); }
+
 export async function getFaqs(page?: number) { await delay(); return ok(paginate(mockFaqs, page)); }
+export async function createFaq(data: Record<string, unknown>) { await delay(); return ok({ id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }); }
+export async function updateFaq(id: string, data: Record<string, unknown>) { await delay(); return ok({ id, ...data }); }
+export async function deleteFaq(id: string) { await delay(); return ok({ id }); }
+
 export async function getLegalDocuments(page?: number) { await delay(); return ok(paginate(mockLegalDocs, page)); }
+export async function createLegalDocument(data: Record<string, unknown>) { await delay(); return ok({ id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }); }
+export async function updateLegalDocument(id: string, data: Record<string, unknown>) { await delay(); return ok({ id, ...data }); }
+export async function deleteLegalDocument(id: string) { await delay(); return ok({ id }); }
 
 // ── Restrictions ────────────────────────────────────────────────────────
 

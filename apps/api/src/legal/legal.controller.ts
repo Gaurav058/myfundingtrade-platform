@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { LegalService } from './legal.service';
+import { CreateLegalDocumentDto, UpdateLegalDocumentDto } from './dto/legal.dto';
 import { Public, Roles } from '../common/decorators';
 
 @ApiTags('Legal')
@@ -38,15 +39,15 @@ export class LegalController {
   @ApiBearerAuth()
   @Post()
   @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
-  create(@Body() body: { title: string; type: string; version: string; content: string; effectiveAt: string; isActive?: boolean }) {
-    return this.service.create(body);
+  create(@Body() dto: CreateLegalDocumentDto) {
+    return this.service.create(dto);
   }
 
   @ApiBearerAuth()
   @Patch(':id')
   @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
-  update(@Param('id') id: string, @Body() body: { title?: string; content?: string; isActive?: boolean }) {
-    return this.service.update(id, body);
+  update(@Param('id') id: string, @Body() dto: UpdateLegalDocumentDto) {
+    return this.service.update(id, dto);
   }
 
   @ApiBearerAuth()

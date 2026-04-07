@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { FaqService } from './faq.service';
+import { CreateFaqDto, UpdateFaqDto } from './dto/faq.dto';
 import { Public, Roles } from '../common/decorators';
 import { PaginationDto } from '../common/dto';
 
@@ -41,15 +42,15 @@ export class FaqController {
   @ApiBearerAuth()
   @Post()
   @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
-  create(@Body() body: { question: string; answer: string; category?: string; sortOrder?: number; isPublished?: boolean }) {
-    return this.service.create(body);
+  create(@Body() dto: CreateFaqDto) {
+    return this.service.create(dto);
   }
 
   @ApiBearerAuth()
   @Patch(':id')
   @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
-  update(@Param('id') id: string, @Body() body: { question?: string; answer?: string; category?: string; sortOrder?: number; isPublished?: boolean }) {
-    return this.service.update(id, body);
+  update(@Param('id') id: string, @Body() dto: UpdateFaqDto) {
+    return this.service.update(id, dto);
   }
 
   @ApiBearerAuth()

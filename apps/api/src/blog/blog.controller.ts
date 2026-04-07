@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BlogService } from './blog.service';
-import { CreateBlogPostDto, UpdateBlogPostDto } from './dto/blog.dto';
+import { CreateBlogPostDto, UpdateBlogPostDto, CreateBlogCategoryDto, UpdateBlogCategoryDto } from './dto/blog.dto';
 import { CurrentUser, Public, Roles } from '../common/decorators';
 import { PaginationDto } from '../common/dto';
 
@@ -27,9 +27,28 @@ export class BlogController {
   }
 
   @Public()
+  @Get('categories')
+  findAllCategories() {
+    return this.service.findAllCategories();
+  }
+
+  @Public()
+  @Get('slugs')
+  getAllSlugs() {
+    return this.service.getAllSlugs();
+  }
+
+  @Public()
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.service.findBySlug(slug);
+  }
+
+  @Public()
+  @Get(':slug/related')
+  @ApiQuery({ name: 'limit', required: false })
+  findRelated(@Param('slug') slug: string, @Query('limit') limit?: number) {
+    return this.service.findRelated(slug, limit ? Number(limit) : 3);
   }
 
   @ApiBearerAuth()
@@ -58,5 +77,28 @@ export class BlogController {
   @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  // ── Category endpoints ────────────────────────────────────────────
+
+  @ApiBearerAuth()
+  @Post('categories')
+  @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
+  createCategory(@Body() dto: CreateBlogCategoryDto) {
+    return this.service.createCategory(dto);
+  }
+
+  @ApiBearerAuth()
+  @Patch('categories/:id')
+  @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
+  updateCategory(@Param('id') id: string, @Body() dto: UpdateBlogCategoryDto) {
+    return this.service.updateCategory(id, dto);
+  }
+
+  @ApiBearerAuth()
+  @Delete('categories/:id')
+  @Roles('SUPER_ADMIN', 'CONTENT_ADMIN')
+  removeCategory(@Param('id') id: string) {
+    return this.service.removeCategory(id);
   }
 }

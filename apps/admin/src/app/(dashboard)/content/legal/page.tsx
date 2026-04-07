@@ -7,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { LoadingState, ErrorState, Pagination } from "@/components/ui/shared";
 import { Plus, FileText, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function LegalPage() {
   const [data, setData] = useState<PaginatedResponse<LegalDocument> | null>(null);
@@ -66,9 +67,9 @@ export default function LegalPage() {
         title="Legal Documents"
         description={`${data.total} documents, ${data.items.filter((d) => d.isActive).length} active`}
         actions={
-          <button className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+          <Link href="/content/legal/editor" className="flex items-center gap-1.5 rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
             <Plus className="h-4 w-4" /> New Document
-          </button>
+          </Link>
         }
       />
       <DataTable columns={columns} data={data.items} keyField="id" />

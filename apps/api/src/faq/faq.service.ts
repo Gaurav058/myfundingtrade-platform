@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateFaqDto, UpdateFaqDto } from './dto/faq.dto';
 import { PaginationDto } from '../common/dto';
 
 @Injectable()
@@ -24,14 +25,14 @@ export class FaqService {
     return faqs.map((f) => f.category).filter(Boolean);
   }
 
-  async create(data: { question: string; answer: string; category?: string; sortOrder?: number; isPublished?: boolean }) {
-    return this.prisma.fAQItem.create({ data });
+  async create(dto: CreateFaqDto) {
+    return this.prisma.fAQItem.create({ data: dto });
   }
 
-  async update(id: string, data: { question?: string; answer?: string; category?: string; sortOrder?: number; isPublished?: boolean }) {
+  async update(id: string, dto: UpdateFaqDto) {
     const faq = await this.prisma.fAQItem.findUnique({ where: { id } });
     if (!faq) throw new NotFoundException('FAQ not found');
-    return this.prisma.fAQItem.update({ where: { id }, data });
+    return this.prisma.fAQItem.update({ where: { id }, data: dto });
   }
 
   async remove(id: string) {
@@ -47,6 +48,6 @@ export class FaqService {
       }),
       this.prisma.fAQItem.count(),
     ]);
-    return { items, total, page: query.page || 1, pageSize: query.pageSize || 50 };
+    return { items, total, page: query.page || 1, pageSize: query.pageSize || 50, totalPages: Math.ceil(total / (query.pageSize || 50)) };
   }
 }
