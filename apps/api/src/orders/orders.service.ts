@@ -34,11 +34,23 @@ export class OrdersService {
     const totalAmount = Math.max(subtotal - discountAmount, 0);
     const orderNumber = `MFT-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
+    // Affiliate attribution
+    let affiliateId: string | undefined;
+    if (dto.affiliateCode) {
+      const affiliate = await this.prisma.affiliateAccount.findUnique({
+        where: { affiliateCode: dto.affiliateCode },
+      });
+      if (affiliate && affiliate.status === 'ACTIVE' && affiliate.userId !== userId) {
+        affiliateId = affiliate.id;
+      }
+    }
+
     const order = await this.prisma.order.create({
       data: {
         userId,
         variantId: variant.id,
         couponId: coupon?.id,
+        affiliateId,
         orderNumber,
         status: 'PENDING_PAYMENT',
         subtotal,

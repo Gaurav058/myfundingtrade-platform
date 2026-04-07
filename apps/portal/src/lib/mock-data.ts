@@ -14,6 +14,8 @@ import type {
   PayoutMethod,
   AffiliateAccount,
   AffiliateConversion,
+  CommissionPayout,
+  AffiliateClick,
   SupportTicket,
   SupportMessage,
   Notification,
@@ -226,6 +228,21 @@ export const mockConversions: AffiliateConversion[] = [
     status: "PENDING", orderAmount: 899, commissionRate: 10, commissionAmount: 89.9,
     confirmedAt: null,
     createdAt: "2026-04-02T16:00:00Z", updatedAt: "2026-04-02T16:00:00Z",
+  },
+];
+
+export const mockAffiliateClicks: AffiliateClick[] = [
+  { id: "clk_001", affiliateId: "aff_001", ipAddress: "203.0.113.10", userAgent: "Mozilla/5.0", referrerUrl: "https://youtube.com/watch?v=abc", landingUrl: "https://myfundingtrade.com/?ref=ALEXM2025", utmSource: "youtube", utmMedium: "video", utmCampaign: "q2-promo", fingerprint: "fp_abc123", createdAt: "2026-04-05T10:00:00Z" },
+  { id: "clk_002", affiliateId: "aff_001", ipAddress: "198.51.100.20", userAgent: "Mozilla/5.0", referrerUrl: "https://twitter.com/alex", landingUrl: "https://myfundingtrade.com/?ref=ALEXM2025", utmSource: "twitter", utmMedium: "social", utmCampaign: null, fingerprint: "fp_def456", createdAt: "2026-04-04T15:30:00Z" },
+  { id: "clk_003", affiliateId: "aff_001", ipAddress: "192.0.2.80", userAgent: "Mozilla/5.0", referrerUrl: null, landingUrl: "https://myfundingtrade.com/?ref=ALEXM2025", utmSource: null, utmMedium: null, utmCampaign: null, fingerprint: "fp_ghi789", createdAt: "2026-04-03T09:15:00Z" },
+];
+
+export const mockCommissionPayouts: CommissionPayout[] = [
+  {
+    id: "cpay_001", affiliateId: "aff_001", amount: 890, currency: "USD",
+    status: "COMPLETED", payoutMethod: "BANK_WIRE", transactionRef: "AFP-2026-001",
+    processedAt: "2026-03-01T10:00:00Z", note: null,
+    createdAt: "2026-02-25T10:00:00Z", updatedAt: "2026-03-01T10:00:00Z",
   },
 ];
 

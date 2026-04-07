@@ -12,6 +12,8 @@ import type {
   PayoutMethod,
   AffiliateAccount,
   AffiliateConversion,
+  AffiliateClick,
+  CommissionPayout,
   SupportTicket,
   SupportMessage,
   Notification,
@@ -29,6 +31,8 @@ import {
   mockPayoutMethods,
   mockAffiliate,
   mockConversions,
+  mockAffiliateClicks,
+  mockCommissionPayouts,
   mockTickets,
   mockMessages,
   mockNotifications,
@@ -124,6 +128,21 @@ export async function getAffiliateAccount(): Promise<ApiResponse<AffiliateAccoun
 export async function getAffiliateConversions(): Promise<ApiResponse<AffiliateConversion[]>> {
   await delay();
   return ok(mockConversions);
+}
+
+export async function getAffiliateClicks(): Promise<ApiResponse<AffiliateClick[]>> {
+  await delay();
+  return ok(mockAffiliateClicks);
+}
+
+export async function getAffiliatePayouts(): Promise<ApiResponse<CommissionPayout[]>> {
+  await delay();
+  return ok(mockCommissionPayouts);
+}
+
+export async function requestAffiliatePayout(_data: { payoutMethod?: string; note?: string }) {
+  await delay(600);
+  return ok({ id: "cpay_new", status: "PENDING" });
 }
 
 // ── Support ────────────────────────────────────

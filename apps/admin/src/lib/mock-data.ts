@@ -4,7 +4,7 @@ import type {
   Order, Payment, Coupon, TraderAccount, TraderAccountPhase, AccountEvaluationResult,
 } from "@myfundingtrade/types";
 import type { PayoutRequest, PayoutMethod } from "@myfundingtrade/types";
-import type { AffiliateAccount, AffiliateConversion, CommissionPayout } from "@myfundingtrade/types";
+import type { AffiliateAccount, AffiliateConversion, CommissionPayout, AffiliateClick } from "@myfundingtrade/types";
 import type { KycSubmission, KycReview, LegalDocument, GeoRestriction, PlatformRestriction } from "@myfundingtrade/types";
 import type { BlogPost, BlogCategory, FAQItem } from "@myfundingtrade/types";
 import type { SupportTicket, SupportMessage } from "@myfundingtrade/types";
@@ -250,6 +250,30 @@ export const mockConversions: AffiliateConversion[] = [
 
 export const mockCommissionPayouts: CommissionPayout[] = [
   { id: "cpay_001", affiliateId: "aff_001", amount: 2500, currency: "USD", status: "COMPLETED", payoutMethod: "BANK_WIRE", transactionRef: "AFP-001", processedAt: d(15), note: null, createdAt: d(20), updatedAt: d(15) },
+];
+
+export const mockAffiliateClicks: AffiliateClick[] = [
+  { id: "clk_001", affiliateId: "aff_001", ipAddress: "203.0.113.10", userAgent: "Mozilla/5.0", referrerUrl: "https://youtube.com/watch?v=abc", landingUrl: "https://myfundingtrade.com/?ref=JAMES85", utmSource: "youtube", utmMedium: "video", utmCampaign: "q2-promo", fingerprint: "fp_abc123", createdAt: d(1) },
+  { id: "clk_002", affiliateId: "aff_001", ipAddress: "198.51.100.20", userAgent: "Mozilla/5.0", referrerUrl: "https://twitter.com/james", landingUrl: "https://myfundingtrade.com/?ref=JAMES85", utmSource: "twitter", utmMedium: "social", utmCampaign: null, fingerprint: "fp_def456", createdAt: d(1) },
+  { id: "clk_003", affiliateId: "aff_001", ipAddress: "203.0.113.10", userAgent: "Mozilla/5.0", referrerUrl: "https://youtube.com/watch?v=xyz", landingUrl: "https://myfundingtrade.com/?ref=JAMES85", utmSource: "youtube", utmMedium: "video", utmCampaign: "q2-promo", fingerprint: "fp_abc123", createdAt: d(0) },
+  { id: "clk_004", affiliateId: "aff_002", ipAddress: "192.0.2.50", userAgent: "Mozilla/5.0", referrerUrl: null, landingUrl: "https://myfundingtrade.com/?ref=ALEX2025", utmSource: null, utmMedium: null, utmCampaign: null, fingerprint: "fp_ghi789", createdAt: d(2) },
+];
+
+export interface FraudSignal {
+  type: string;
+  severity: "HIGH" | "MEDIUM" | "LOW";
+  detail: string;
+}
+
+export const mockFraudSignals: Array<{ affiliateId: string; affiliateCode: string; signals: FraudSignal[] }> = [
+  {
+    affiliateId: "aff_001",
+    affiliateCode: "JAMES85",
+    signals: [
+      { type: "REPEATED_IP", severity: "MEDIUM", detail: "1 IP(s) with >10 clicks today: 203.0.113.10 (15x)" },
+      { type: "CLICK_SPIKE", severity: "MEDIUM", detail: "42 clicks in last 24h vs 7-day avg of 8.3/day (5.1x normal)" },
+    ],
+  },
 ];
 
 // ── Support ─────────────────────────────────────────────────────────────

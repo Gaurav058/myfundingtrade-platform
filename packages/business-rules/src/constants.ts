@@ -12,6 +12,12 @@ export const MIN_PAYOUT_AMOUNT = 50;
 /** How many calendar days after a funded account is created before first payout is allowed */
 export const FIRST_PAYOUT_WAIT_DAYS = 14;
 
+/** Attribution window in days — how long after a click a conversion can be attributed */
+export const ATTRIBUTION_WINDOW_DAYS = 30;
+
+/** Maximum affiliate clicks from a single IP per day before flagging as suspicious */
+export const MAX_CLICKS_PER_IP_PER_DAY = 10;
+
 /** KYC approval validity in days */
 export const KYC_VALIDITY_DAYS = 365;
 

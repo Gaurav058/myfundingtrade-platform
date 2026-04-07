@@ -829,11 +829,13 @@ model AffiliateClick {
   utmMedium    String?          @map("utm_medium") @db.VarChar(100)
   utmCampaign  String?          @map("utm_campaign") @db.VarChar(100)
   fingerprint  String?          @db.VarChar(255)
+  country      String?          @db.VarChar(2)
   createdAt    DateTime         @default(now()) @map("created_at")
 
   affiliate    AffiliateAccount @relation(fields: [affiliateId], references: [id])
 
   @@index([affiliateId])
+  @@index([ipAddress])
   @@index([createdAt])
   @@map("affiliate_clicks")
 }
@@ -847,7 +849,9 @@ model AffiliateConversion {
   orderAmount     Decimal                  @map("order_amount") @db.Decimal(10, 2)
   commissionRate  Decimal                  @map("commission_rate") @db.Decimal(5, 2)
   commissionAmount Decimal                 @map("commission_amount") @db.Decimal(10, 2)
+  rejectedReason  String?                  @map("rejected_reason") @db.VarChar(500)
   confirmedAt     DateTime?                @map("confirmed_at")
+  rejectedAt      DateTime?                @map("rejected_at")
   createdAt       DateTime                 @default(now()) @map("created_at")
   updatedAt       DateTime                 @updatedAt @map("updated_at")
 

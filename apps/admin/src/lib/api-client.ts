@@ -5,7 +5,7 @@ import {
   mockAccounts, mockPhases, mockEvaluations,
   mockKycSubmissions, mockKycReviews,
   mockPayoutRequests,
-  mockAffiliates, mockConversions, mockCommissionPayouts,
+  mockAffiliates, mockConversions, mockCommissionPayouts, mockAffiliateClicks, mockFraudSignals,
   mockTickets, mockMessages,
   mockBlogPosts, mockBlogCategories, mockFaqs, mockLegalDocs,
   mockGeoRestrictions, mockPlatformRestrictions,
@@ -85,6 +85,12 @@ export async function reviewPayout(id: string, action: "APPROVED" | "REJECTED", 
 export async function getAffiliates(page?: number) { await delay(); return ok(paginate(mockAffiliates, page)); }
 export async function getAffiliateConversions(affId: string) { await delay(); return ok(mockConversions.filter((c) => c.affiliateId === affId)); }
 export async function getCommissionPayouts(affId: string) { await delay(); return ok(mockCommissionPayouts.filter((c) => c.affiliateId === affId)); }
+export async function getAffiliateClicks(affId: string) { await delay(); return ok(mockAffiliateClicks.filter((c) => c.affiliateId === affId)); }
+export async function updateAffiliateStatus(id: string, status: string) { await delay(); return ok({ id, status }); }
+export async function updateAffiliateRate(id: string, commissionRate: number) { await delay(); return ok({ id, commissionRate }); }
+export async function reviewAffiliateConversion(id: string, decision: string, reason?: string) { await delay(); return ok({ id, decision, reason }); }
+export async function reviewCommissionPayout(id: string, decision: string, note?: string, transactionRef?: string) { await delay(); return ok({ id, decision, note, transactionRef }); }
+export async function getAffiliateFraudSignals(affiliateId?: string) { await delay(); return ok(affiliateId ? mockFraudSignals.filter((f) => f.affiliateId === affiliateId) : mockFraudSignals); }
 
 // ── Support ─────────────────────────────────────────────────────────────
 
