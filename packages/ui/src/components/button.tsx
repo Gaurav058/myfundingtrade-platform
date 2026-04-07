@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Slot } from '@radix-ui/react-slot';
 import { cn } from '../lib/cn';
 import type { ButtonHTMLAttributes } from 'react';
 
@@ -33,6 +34,7 @@ export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
+  asChild?: boolean;
 }
 
 export function Button({
@@ -42,10 +44,24 @@ export function Button({
   isLoading,
   disabled,
   children,
+  asChild = false,
   ...props
 }: ButtonProps) {
+  const Comp = asChild ? Slot : 'button';
+
+  if (asChild) {
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  }
+
   return (
-    <button
+    <Comp
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={disabled || isLoading}
       {...props}
@@ -73,7 +89,7 @@ export function Button({
         </svg>
       ) : null}
       {children}
-    </button>
+    </Comp>
   );
 }
 
