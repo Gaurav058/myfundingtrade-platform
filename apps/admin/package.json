@@ -1,0 +1,33 @@
+{
+  "name": "@myfundingtrade/admin",
+  "version": "0.0.1",
+  "private": true,
+  "description": "MyFundingTrade admin panel",
+  "scripts": {
+    "dev": "next dev --port 3002",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next .turbo node_modules"
+  },
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@myfundingtrade/ui": "workspace:*",
+    "@myfundingtrade/types": "workspace:*",
+    "@myfundingtrade/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.3",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.4.49",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "^15.1.0"
+  }
+}

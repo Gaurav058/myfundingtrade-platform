@@ -1,0 +1,34 @@
+{
+  "name": "myfundingtrade-platform",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Production-grade prop trading platform monorepo",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "turbo run db:generate --filter=@myfundingtrade/api",
+    "db:push": "turbo run db:push --filter=@myfundingtrade/api",
+    "db:migrate": "turbo run db:migrate --filter=@myfundingtrade/api",
+    "db:seed": "turbo run db:seed --filter=@myfundingtrade/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build",
+    "prepare": "echo 'Monorepo ready'"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  }
+}
