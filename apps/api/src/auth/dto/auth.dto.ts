@@ -4,14 +4,16 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RegisterDto {
   @ApiProperty({ example: 'trader@example.com' })
   @IsEmail()
+  @MaxLength(255)
   email: string;
 
-  @ApiProperty({ example: 'SecureP@ss1' })
+  @ApiProperty({ example: 'SecureP@ss1!' })
   @IsString()
   @MinLength(8)
   @MaxLength(128)
-  @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: 'Password must contain at least one uppercase, one lowercase, and one number',
+  @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~])/, {
+    message:
+      'Password must contain at least one uppercase, one lowercase, one number, and one special character',
   })
   password: string;
 
@@ -31,10 +33,12 @@ export class RegisterDto {
 export class LoginDto {
   @ApiProperty({ example: 'trader@example.com' })
   @IsEmail()
+  @MaxLength(255)
   email: string;
 
-  @ApiProperty({ example: 'SecureP@ss1' })
+  @ApiProperty({ example: 'SecureP@ss1!' })
   @IsString()
+  @MaxLength(128)
   password: string;
 }
 

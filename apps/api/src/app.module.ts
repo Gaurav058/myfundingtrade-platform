@@ -3,16 +3,21 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
+// Config validation
+import { validate } from './config/env.validation';
+
 // Core
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { QueueModule } from './queue/queue.module';
+import { SecurityModule } from './security/security.module';
 
 // Guards, Filters, Interceptors
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 // Feature Modules
 import { HealthModule } from './health/health.module';
@@ -45,18 +50,19 @@ import { AuditModule } from './audit/audit.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      validate,
     }),
     ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 100,
-      },
+      { name: 'short', ttl: 1000, limit: 3 },
+      { name: 'medium', ttl: 10000, limit: 20 },
+      { name: 'long', ttl: 60000, limit: 100 },
     ]),
 
     // Core infrastructure
     PrismaModule,
     RedisModule,
     QueueModule,
+    SecurityModule,
 
     // Feature modules
     HealthModule,
@@ -93,6 +99,8 @@ import { AuditModule } from './audit/audit.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     // Wrap all responses in ApiResponseDto
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
+    // Auto audit-log every admin mutation
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     // Consistent error responses
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],

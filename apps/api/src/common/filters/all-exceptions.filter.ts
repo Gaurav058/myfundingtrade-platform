@@ -4,6 +4,7 @@ import { Response, Request } from 'express';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
+  private readonly isProduction = process.env.NODE_ENV === 'production';
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -25,15 +26,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = Array.isArray(obj.message) ? obj.message.join('; ') : (obj.message as string);
       }
     } else {
-      this.logger.error('Unhandled exception', exception instanceof Error ? exception.stack : exception);
+      // Unhandled exception — log full stack, return only generic message
+      this.logger.error(
+        `Unhandled exception on ${request.method} ${request.url}`,
+        exception instanceof Error ? exception.stack : String(exception),
+      );
+      if (this.isProduction) {
+        error = 'Internal Server Error';
+        message = 'An unexpected error occurred';
+      }
     }
 
     response.status(status).json({
       success: false,
       error,
-      message,
+      ...(message && { message }),
       statusCode: status,
-      path: request.url,
       timestamp: new Date().toISOString(),
     });
   }

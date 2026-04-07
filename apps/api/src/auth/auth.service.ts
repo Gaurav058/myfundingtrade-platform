@@ -1,4 +1,12 @@
-import { Injectable, UnauthorizedException, ConflictException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Logger,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -7,17 +15,26 @@ import { PrismaService } from '../prisma/prisma.service';
 import { REDIS_CLIENT } from '../redis/redis.module';
 import Redis from 'ioredis';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { SecurityService } from '../security/security.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly security: SecurityService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
   async register(dto: RegisterDto, ip: string, userAgent: string) {
+    // Anti-abuse: limit signups per IP
+    if (await this.security.isSignupBlocked(ip)) {
+      throw new HttpException('Too many registration attempts. Try again later.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new ConflictException('Email already registered');
 
@@ -33,8 +50,12 @@ export class AuthService {
       include: { profile: true },
     });
 
+    await this.security.recordSignup(ip);
+
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     await this.storeRefreshToken(user.id, tokens.refreshToken, ip, userAgent);
+
+    this.logger.log(`User registered: id=${user.id} email=${user.email} ip=${ip}`);
 
     return {
       user: this.sanitizeUser(user),
@@ -43,15 +64,35 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, ip: string, userAgent: string) {
+    // Check if login is blocked (brute-force protection)
+    const blocked = await this.security.isLoginBlocked(ip, dto.email);
+    if (blocked.blocked) {
+      throw new UnauthorizedException(blocked.reason);
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
       include: { profile: true },
     });
-    if (!user || user.deletedAt) throw new UnauthorizedException('Invalid credentials');
-    if (user.status !== 'ACTIVE') throw new UnauthorizedException('Account is not active');
+
+    if (!user || user.deletedAt) {
+      await this.security.recordFailedLogin(ip, dto.email);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.status !== 'ACTIVE') {
+      await this.security.recordFailedLogin(ip, dto.email);
+      throw new UnauthorizedException('Account is not active');
+    }
 
     const isValid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isValid) throw new UnauthorizedException('Invalid credentials');
+    if (!isValid) {
+      await this.security.recordFailedLogin(ip, dto.email);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Success — clear failed login counter
+    await this.security.clearFailedLogins(dto.email);
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -70,14 +111,26 @@ export class AuthService {
 
     if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
       if (stored?.family) {
+        // ── TOKEN REUSE DETECTED ──
+        // A previously-used refresh token was replayed → revoke entire family
+        // and invalidate all access tokens (possible token theft).
         await this.prisma.refreshToken.updateMany({
           where: { family: stored.family, revokedAt: null },
           data: { revokedAt: new Date() },
+        });
+        await this.security.invalidateUserTokens(stored.userId);
+        await this.security.logSuspiciousActivity({
+          type: 'REFRESH_TOKEN_REUSE',
+          ip,
+          userId: stored.userId,
+          userAgent,
+          details: `Refresh token reuse detected for family ${stored.family}`,
         });
       }
       throw new UnauthorizedException('Invalid refresh token');
     }
 
+    // Rotate: revoke current token
     await this.prisma.refreshToken.update({
       where: { id: stored.id },
       data: { revokedAt: new Date() },
@@ -93,14 +146,23 @@ export class AuthService {
   }
 
   async logout(userId: string, refreshToken?: string) {
+    // Invalidate all access tokens issued before now (checked in JwtAuthGuard via Redis)
+    await this.security.invalidateUserTokens(userId);
+
+    // Revoke refresh tokens
     if (refreshToken) {
       const tokenHash = this.hashToken(refreshToken);
       await this.prisma.refreshToken.updateMany({
         where: { tokenHash, userId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
+    } else {
+      // No specific token → revoke all
+      await this.prisma.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
     }
-    await this.redis.set(`blacklist:${userId}:${Date.now()}`, '1', 'EX', 900);
   }
 
   async getMe(userId: string) {
