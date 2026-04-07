@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "node",
@@ -12,6 +12,9 @@
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
-    "noEmit": false
+    "noEmit": false,
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   }
 }
